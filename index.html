@@ -746,7 +746,90 @@
 
         // -------- PLAYERS LIST VIEW --------
         function renderPlayers(container) {
-            const { players } = appState.data;
+    const { players } = appState.data;
+
+    // Helper to compute total points for a player
+    const getPoints = (playerId) => getPlayerTotalPoints(playerId);
+    // Helper to compute total appearances (NT)
+    const getApps = (playerId) => getPlayerAppearances(playerId).nt;
+
+    // Default sort: games played desc, then points desc
+    const defaultSort = (a, b) => {
+        const gamesA = getPlayerGames(a.id).length;
+        const gamesB = getPlayerGames(b.id).length;
+        if (gamesB !== gamesA) return gamesB - gamesA;
+        return getPoints(b.id) - getPoints(a.id);
+    };
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+        <h2>👥 Players</h2>
+        <div style="margin-bottom:0.75rem; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <span class="badge nt">Yellow = Appearances</span>
+            <span class="badge">Blue = Points</span>
+        </div>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <input type="text" id="playerSearch" placeholder="Search players..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
+            <select id="playerSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius); background:white;">
+                <option value="default">Default (Games, Points)</option>
+                <option value="name_asc">Name (A → Z)</option>
+                <option value="name_desc">Name (Z → A)</option>
+                <option value="apps_desc">Apps (High → Low)</option>
+                <option value="apps_asc">Apps (Low → High)</option>
+                <option value="pts_desc">Points (High → Low)</option>
+                <option value="pts_asc">Points (Low → High)</option>
+            </select>
+        </div>
+        <div id="playersList"></div>
+        <div style="margin-top:1rem;">
+            <button class="secondary" onclick="navigateTo('addPlayer')">+ Add New Player</button>
+        </div>
+    `;
+    container.appendChild(card);
+
+    const listContainer = card.querySelector('#playersList');
+    const searchInput = card.querySelector('#playerSearch');
+    const sortSelect = card.querySelector('#playerSort');
+
+    // Function to re-render the list based on current filters
+    function updateList() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        let filtered = players.filter(p => 
+            p.name.toLowerCase().includes(searchTerm) || 
+            (p.position && p.position.toLowerCase().includes(searchTerm))
+        );
+
+        const sortBy = sortSelect.value;
+        filtered = [...filtered].sort((a, b) => {
+            switch (sortBy) {
+                case 'name_asc':
+                    return a.name.localeCompare(b.name);
+                case 'name_desc':
+                    return b.name.localeCompare(a.name);
+                case 'apps_desc':
+                    return getApps(b.id) - getApps(a.id);
+                case 'apps_asc':
+                    return getApps(a.id) - getApps(b.id);
+                case 'pts_desc':
+                    return getPoints(b.id) - getPoints(a.id);
+                case 'pts_asc':
+                    return getPoints(a.id) - getPoints(b.id);
+                default: // default
+                    return defaultSort(a, b);
+            }
+        });
+
+        renderPlayerList(listContainer, filtered);
+    }
+
+    // Initial render
+    updateList();
+
+    // Event listeners
+    searchInput.addEventListener('input', updateList);
+    sortSelect.addEventListener('change', updateList);
+}
 
             // Sort players by total games played (desc), then total points (desc)
             const sortedPlayers = [...players].sort((a, b) => {
