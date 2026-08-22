@@ -419,7 +419,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem;
+            padding: 0.75rem 1rem;
             border: 1px solid var(--border);
             border-radius: var(--radius);
             margin-bottom: 0.75rem;
@@ -435,7 +435,7 @@
             font-weight: bold;
             font-size: 1.2rem;
             text-align: center;
-            flex: 0 0 auto;
+            flex: 0 0 80px;
             min-width: 80px;
         }
 
@@ -465,16 +465,20 @@
             color: #5b21b6;
         }
 
-        /* ============ GAME PHOTO ============ */
-        .game-photo {
-            max-width: 250px;
-            max-height: 250px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            border-radius: var(--radius);
-            margin: 1rem auto;
-            display: block;
+        /* ============ GAME PHOTO GALLERY ============ */
+        .game-photo-gallery {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .game-photo-gallery img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--border);
         }
 
         /* ============ PLAYER ROW (ADD GAME) ============ */
@@ -577,19 +581,36 @@
                 try {
                     const data = JSON.parse(stored);
                     // Migrate old data: ensure new fields exist
-                    data.players = data.players.map(player => ({
-                        ...player,
-                        dob: player.dob || '',
-                        cityOfBirth: player.cityOfBirth || '',
-                        previousClubs: player.previousClubs || '',
-                        ntDebutDate: player.ntDebutDate || '',
-                        previousClubsColor: player.previousClubsColor || '#1f2937'
-                    }));
-                    data.games = data.games.map(game => ({
-                        ...game,
-                        occasion: game.occasion || '',
-                        photo: game.photo || null
-                    }));
+                    data.players = data.players.map(player => {
+                        // Handle previousClubs as string -> array of {name, color}
+                        let clubs = [];
+                        if (typeof player.previousClubs === 'string' && player.previousClubs) {
+                            clubs = player.previousClubs.split(',').map(c => c.trim()).filter(Boolean).map(name => ({ name, color: '#1f2937' }));
+                        } else if (Array.isArray(player.previousClubs)) {
+                            clubs = player.previousClubs;
+                        }
+                        return {
+                            ...player,
+                            previousClubs: clubs,
+                            dob: player.dob || '',
+                            cityOfBirth: player.cityOfBirth || '',
+                            ntDebutDate: player.ntDebutDate || ''
+                        };
+                    });
+                    data.games = data.games.map(game => {
+                        let photos = [];
+                        if (game.photos && Array.isArray(game.photos)) {
+                            photos = game.photos;
+                        } else if (game.photo) {
+                            photos = [game.photo];
+                        }
+                        return {
+                            ...game,
+                            venue: game.venue || '',
+                            photos: photos,
+                            occasion: game.occasion || ''
+                        };
+                    });
                     return data;
                 } catch (e) {
                     console.error('Error parsing stored data, using defaults', e);
@@ -655,7 +676,7 @@
         }
 
         function getCompetitionTypeLabel(type) {
-            return type === 'nt' ? 'National Team' : 'National Team';
+            return 'National Team';
         }
 
         function getPlayerAppearances(playerId) {
@@ -689,6 +710,22 @@
 
         function getPlayerMotmCount(playerId) {
             return appState.data.games.filter(g => g.manOfTheMatch === playerId).length;
+        }
+
+        // Helper to get occasion style
+        function getOccasionStyle(occasion) {
+            const mapping = {
+                'friendly': { bg: '#fee2e2', color: '#991b1b' },
+                'prijateljska': { bg: '#fee2e2', color: '#991b1b' },
+                'eurobasket': { bg: '#fef3c7', color: '#92400e' },
+                'fiba world cup': { bg: '#dbeafe', color: '#1e40af' },
+                'fiba world cup qualifier': { bg: '#dbeafe', color: '#1e40af' },
+                'olympic games': { bg: '#d1fae5', color: '#065f46' },
+                'qualifier': { bg: '#e0e7ff', color: '#3730a3' },
+                'default': { bg: '#ede9fe', color: '#5b21b6' }
+            };
+            const key = occasion.toLowerCase().trim();
+            return mapping[key] || mapping['default'];
         }
 
         // -------- NAVIGATION --------
@@ -798,13 +835,14 @@
                 recentGames.forEach(game => {
                     const gameDiv = document.createElement('div');
                     gameDiv.className = 'game-card';
+                    const occasionStyle = getOccasionStyle(game.occasion);
                     gameDiv.innerHTML = `
-                        <div>
+                        <div style="flex:1;">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
-                            <div class="thread-meta">${formatDate(game.date)}</div>
+                            <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                         </div>
                         <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                        ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
+                        ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color};">${escapeHtml(game.occasion)}</span>` : ''}
                     `;
                     gameDiv.addEventListener('click', () => navigateTo('gameDetail', game.id));
                     recentCard.appendChild(gameDiv);
@@ -976,10 +1014,15 @@
                 <div style="margin-top:1rem;">
                     <p><strong>Date of Birth:</strong> ${player.dob ? formatDate(player.dob) : 'N/A'}</p>
                     <p><strong>City of Birth:</strong> ${player.cityOfBirth || 'N/A'}</p>
-                    <p><strong>Previous Clubs:</strong> <span id="prevClubsText" style="color: ${player.previousClubsColor || '#1f2937'}; font-weight: bold;">${player.previousClubs || 'N/A'}</span> <input type="color" id="prevClubsColorPicker" value="${player.previousClubsColor || '#1f2937'}"></p>
+                    <p><strong>Previous Clubs:</strong> 
+                        ${player.previousClubs && player.previousClubs.length > 0 
+                            ? player.previousClubs.map(club => `<span style="color: ${club.color || '#1f2937'}; font-weight: bold;">${escapeHtml(club.name)}</span>`).join(', ')
+                            : 'N/A'
+                        }
+                    </p>
                     <p><strong>NT Debut Date:</strong> ${player.ntDebutDate ? formatDate(player.ntDebutDate) : 'N/A'}</p>
                 </div>
-                <div id="playerGamesList"></div>
+                <div id="playerGamesList" style="margin-top:1rem;"></div>
                 <div style="margin-top:1rem; display:flex; gap:0.5rem;">
                     <button class="secondary" onclick="navigateTo('players')">Back to Players</button>
                     <button class="danger" onclick="deletePlayer('${player.id}')">Delete Player</button>
@@ -1014,18 +1057,7 @@
                 });
             }
 
-            // Previous clubs color picker
-            const colorPicker = card.querySelector('#prevClubsColorPicker');
-            const prevClubsSpan = card.querySelector('#prevClubsText');
-            if (colorPicker && prevClubsSpan) {
-                colorPicker.addEventListener('input', (e) => {
-                    const newColor = e.target.value;
-                    prevClubsSpan.style.color = newColor;
-                    player.previousClubsColor = newColor;
-                    saveData(appState.data);
-                });
-            }
-
+            // Render games compactly
             const gamesContainer = card.querySelector('#playerGamesList');
             if (playerGames.length === 0) {
                 gamesContainer.innerHTML = '<p>No games recorded for this player.</p>';
@@ -1033,6 +1065,10 @@
                 playerGames.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(game => {
                     const gameDiv = document.createElement('div');
                     gameDiv.className = 'game-card';
+                    // Compact style
+                    gameDiv.style.padding = '0.4rem 0.6rem';
+                    gameDiv.style.marginBottom = '0.4rem';
+                    gameDiv.style.fontSize = '0.9rem';
                     let points = 0;
                     if (game.playerStats) {
                         const stat = game.playerStats.find(s => s.playerId === playerId);
@@ -1040,16 +1076,14 @@
                     }
                     const isMotm = game.manOfTheMatch === playerId;
                     gameDiv.innerHTML = `
-                        <div style="flex:1;">
+                        <div style="flex:1; display:flex; align-items:center;">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
-                            <div class="thread-meta">${formatDate(game.date)}</div>
+                            <span class="thread-meta" style="margin-left:0.5rem;">${formatDate(game.date)}</span>
                         </div>
-                        <div class="game-info-right" style="display:flex; align-items:center; gap:0.5rem;">
-                            <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                            ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
-                            <span class="badge">${points}</span>
-                            ${isMotm ? '<span class="badge nt">MOTM</span>' : ''}
-                        </div>
+                        <div class="game-score" style="flex:0 0 60px; min-width:60px; font-size:1rem;">${game.homeScore} - ${game.awayScore}</div>
+                        ${game.occasion ? `<span class="game-occasion" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${escapeHtml(game.occasion)}</span>` : ''}
+                        <span class="badge" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${points}</span>
+                        ${isMotm ? '<span class="badge nt" style="font-size:0.7rem; padding:0.1rem 0.4rem;">MOTM</span>' : ''}
                     `;
                     gameDiv.addEventListener('click', () => navigateTo('gameDetail', game.id));
                     gamesContainer.appendChild(gameDiv);
@@ -1156,14 +1190,15 @@
             games.forEach(game => {
                 const gameCard = document.createElement('div');
                 gameCard.className = 'game-card';
+                const occasionStyle = getOccasionStyle(game.occasion);
                 gameCard.innerHTML = `
                     <div style="flex:1;">
                         <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
-                        <div class="thread-meta">${formatDate(game.date)}</div>
+                        <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                     </div>
                     <div class="game-info-right" style="display:flex; align-items:center; gap:0.5rem;">
                         <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                        ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
+                        ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color};">${escapeHtml(game.occasion)}</span>` : ''}
                     </div>
                 `;
                 gameCard.addEventListener('click', () => navigateTo('gameDetail', game.id));
@@ -1184,24 +1219,27 @@
             card.className = 'card';
             card.innerHTML = `
                 <h2>${escapeHtml(game.homeTeam)} vs ${escapeHtml(game.awayTeam)}</h2>
-                <div class="thread-meta">${formatDate(game.date)}</div>
-                ${game.occasion ? `<div style="margin-top:0.5rem;"><span class="game-occasion">${escapeHtml(game.occasion)}</span></div>` : ''}
+                <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
+                ${game.occasion ? `<div style="margin-top:0.5rem;"><span class="game-occasion" style="background-color: ${getOccasionStyle(game.occasion).bg}; color: ${getOccasionStyle(game.occasion).color};">${escapeHtml(game.occasion)}</span></div>` : ''}
                 <div style="margin-top:0.5rem;">
                     <strong>Man of the Match:</strong> ${game.manOfTheMatch ? escapeHtml(getPlayerName(game.manOfTheMatch)) : 'Not selected'}
                 </div>
                 <div style="margin-top:1rem; font-size:1.5rem; font-weight:bold; text-align:center;">
                     ${game.homeScore} - ${game.awayScore}
                 </div>
-                ${game.photo ? `<img src="${game.photo}" alt="Game Photo" class="game-photo">` : ''}
+                <div class="game-photo-gallery" id="gamePhotoGallery">
+                    ${(game.photos || []).map(photo => `<img src="${photo}" alt="Game Photo">`).join('')}
+                </div>
                 <div style="margin-top:1.5rem;">
-                    <h3>Game Photo</h3>
+                    <h3>Game Photos</h3>
                     <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
                         <button class="secondary" id="uploadGamePhotoBtn">Upload Photo from PC</button>
-                        <input type="file" id="gamePhotoFileInput" accept="image/*" style="display:none;">
+                        <input type="file" id="gamePhotoFileInput" accept="image/*" style="display:none;" multiple>
                         <button class="secondary" id="photoUrlBtn">Use Image URL</button>
                         <input type="url" id="gamePhotoUrl" placeholder="https://example.com/image.jpg" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
-                        <button class="secondary" id="setPhotoUrlBtn">Set URL</button>
+                        <button class="secondary" id="setPhotoUrlBtn">Add URL Photo</button>
                     </div>
+                    <small>Max 4 photos. Click on a photo to remove it.</small>
                 </div>
                 <h3 style="margin-top:1.5rem;">Players & Points</h3>
                 <div id="gamePlayers"></div>
@@ -1213,37 +1251,64 @@
             `;
             container.appendChild(card);
 
-            // Game photo upload from PC
+            const photos = game.photos || [];
+            const gallery = card.querySelector('#gamePhotoGallery');
+
+            function renderGallery() {
+                gallery.innerHTML = photos.map(photo => `<img src="${photo}" alt="Game Photo" style="cursor:pointer;" data-index="${photos.indexOf(photo)}">`).join('');
+                gallery.querySelectorAll('img').forEach(img => {
+                    img.addEventListener('click', () => {
+                        const index = parseInt(img.dataset.index);
+                        photos.splice(index, 1);
+                        game.photos = photos;
+                        saveData(appState.data);
+                        renderGallery();
+                    });
+                });
+            }
+            renderGallery();
+
+            // Upload multiple photos from PC
             const uploadBtn = card.querySelector('#uploadGamePhotoBtn');
             const fileInput = card.querySelector('#gamePhotoFileInput');
             if (uploadBtn && fileInput) {
                 uploadBtn.addEventListener('click', () => fileInput.click());
                 fileInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        game.photo = ev.target.result;
-                        saveData(appState.data);
-                        renderApp();
-                    };
-                    reader.readAsDataURL(file);
+                    const files = Array.from(e.target.files);
+                    if (files.length + photos.length > 4) {
+                        alert('Maximum 4 photos allowed.');
+                        return;
+                    }
+                    files.forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            photos.push(ev.target.result);
+                            game.photos = photos;
+                            saveData(appState.data);
+                            renderGallery();
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                    fileInput.value = '';
                 });
             }
 
-            // Game photo from URL
+            // Add photo from URL
             const setUrlBtn = card.querySelector('#setPhotoUrlBtn');
             const urlInput = card.querySelector('#gamePhotoUrl');
             if (setUrlBtn && urlInput) {
                 setUrlBtn.addEventListener('click', () => {
                     const url = urlInput.value.trim();
-                    if (url) {
-                        game.photo = url;
-                        saveData(appState.data);
-                        renderApp();
-                    } else {
-                        alert('Please enter a valid image URL.');
+                    if (!url) return;
+                    if (photos.length >= 4) {
+                        alert('Maximum 4 photos allowed.');
+                        return;
                     }
+                    photos.push(url);
+                    game.photos = photos;
+                    saveData(appState.data);
+                    renderGallery();
+                    urlInput.value = '';
                 });
             }
 
@@ -1268,11 +1333,11 @@
                         playerItem.className = 'list-item';
                         const isMotm = game.manOfTheMatch === stat.playerId;
                         playerItem.innerHTML = `
-                            <div class="item-info">
+                            <div class="item-info" style="display:flex; align-items:center;">
                                 <div class="item-title">${escapeHtml(player.name)}</div>
+                                ${isMotm ? '<span class="badge nt" style="margin-left:0.5rem;">MOTM</span>' : ''}
                             </div>
                             <span class="badge">${stat.points || 0}</span>
-                            ${isMotm ? '<span class="badge nt">MOTM</span>' : ''}
                         `;
                         playerItem.addEventListener('click', () => navigateTo('playerDetail', player.id));
                         playersContainer.appendChild(playerItem);
@@ -1376,6 +1441,12 @@
             const editingPlayer = editingPlayerId ? getPlayerById(editingPlayerId) : null;
             const isEditing = !!editingPlayer;
 
+            // Prepare clubs data: array of {name, color}
+            let clubs = [];
+            if (isEditing && Array.isArray(editingPlayer.previousClubs)) {
+                clubs = editingPlayer.previousClubs.map(club => ({ ...club }));
+            }
+
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -1404,8 +1475,9 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="playerPreviousClubs">Previous Clubs</label>
-                        <textarea id="playerPreviousClubs" rows="3" placeholder="e.g., Partizan, Real Madrid">${isEditing ? escapeHtml(editingPlayer.previousClubs) : ''}</textarea>
+                        <label>Previous Clubs</label>
+                        <div id="clubsContainer"></div>
+                        <button type="button" class="secondary" id="addClubBtn">+ Add Club</button>
                     </div>
                     <div class="form-group">
                         <label for="playerNtDebut">NT Debut Date</label>
@@ -1423,6 +1495,44 @@
             `;
             container.appendChild(card);
 
+            const clubsContainer = card.querySelector('#clubsContainer');
+            const addClubBtn = card.querySelector('#addClubBtn');
+
+            function renderClubInputs() {
+                clubsContainer.innerHTML = '';
+                clubs.forEach((club, index) => {
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.alignItems = 'center';
+                    row.style.gap = '0.5rem';
+                    row.style.marginBottom = '0.5rem';
+                    row.innerHTML = `
+                        <input type="text" class="club-name" placeholder="Club name" value="${escapeHtml(club.name)}" style="flex:1;">
+                        <input type="color" class="club-color" value="${club.color || '#1f2937'}">
+                        <button type="button" class="remove-club danger" style="padding:0.3rem 0.6rem;">X</button>
+                    `;
+                    row.querySelector('.club-name').addEventListener('input', (e) => {
+                        clubs[index].name = e.target.value;
+                    });
+                    row.querySelector('.club-color').addEventListener('input', (e) => {
+                        clubs[index].color = e.target.value;
+                    });
+                    row.querySelector('.remove-club').addEventListener('click', () => {
+                        clubs.splice(index, 1);
+                        renderClubInputs();
+                    });
+                    clubsContainer.appendChild(row);
+                });
+            }
+
+            function addClub() {
+                clubs.push({ name: '', color: '#1f2937' });
+                renderClubInputs();
+            }
+
+            addClubBtn.addEventListener('click', addClub);
+            renderClubInputs();
+
             const form = card.querySelector('#addPlayerForm');
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1431,7 +1541,6 @@
                 const number = card.querySelector('#playerNumber').value.trim();
                 const dob = card.querySelector('#playerDob').value;
                 const city = card.querySelector('#playerCity').value.trim();
-                const previousClubs = card.querySelector('#playerPreviousClubs').value.trim();
                 const ntDebut = card.querySelector('#playerNtDebut').value;
                 const photoInput = card.querySelector('#playerPhoto');
 
@@ -1440,13 +1549,16 @@
                     return;
                 }
 
+                // Filter out empty club names
+                const filteredClubs = clubs.filter(club => club.name.trim() !== '');
+
                 const playerData = {
                     name,
                     position,
                     number: number ? parseInt(number) : null,
                     dob: dob || '',
                     cityOfBirth: city,
-                    previousClubs: previousClubs,
+                    previousClubs: filteredClubs,
                     ntDebutDate: ntDebut || ''
                 };
 
@@ -1486,9 +1598,8 @@
                 photo: photoDataUrl || null,
                 dob: playerData.dob || '',
                 cityOfBirth: playerData.cityOfBirth || '',
-                previousClubs: playerData.previousClubs || '',
+                previousClubs: playerData.previousClubs || [],
                 ntDebutDate: playerData.ntDebutDate || '',
-                previousClubsColor: '#1f2937',
                 createdAt: new Date().toISOString()
             };
             appState.data.players.push(newPlayer);
@@ -1513,10 +1624,8 @@
                             <input type="date" id="gameDate" required value="${isEditing ? editingGame.date : ''}">
                         </div>
                         <div class="form-group">
-                            <label for="competitionType">Competition Type *</label>
-                            <select id="competitionType" required>
-                                <option value="nt" ${isEditing && editingGame.competitionType === 'nt' ? 'selected' : ''}>National Team</option>
-                            </select>
+                            <label for="gameVenue">Venue (City) *</label>
+                            <input type="text" id="gameVenue" required placeholder="e.g., Belgrade" value="${isEditing ? escapeHtml(editingGame.venue) : ''}">
                         </div>
                     </div>
                     <div class="form-row">
@@ -1640,7 +1749,7 @@
             card.querySelector('#addGameForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const date = card.querySelector('#gameDate').value;
-                const competitionType = card.querySelector('#competitionType').value;
+                const venue = card.querySelector('#gameVenue').value.trim();
                 const homeTeam = card.querySelector('#homeTeam').value.trim();
                 const awayTeam = card.querySelector('#awayTeam').value.trim();
                 const homeScore = parseInt(card.querySelector('#homeScore').value) || 0;
@@ -1648,8 +1757,8 @@
                 const occasion = card.querySelector('#occasion').value.trim();
                 const motmName = motmSelect.value;
 
-                if (!date || !homeTeam || !awayTeam) {
-                    alert('Date, Home Team, and Away Team are required.');
+                if (!date || !venue || !homeTeam || !awayTeam) {
+                    alert('Date, Venue, Home Team, and Away Team are required.');
                     return;
                 }
 
@@ -1675,16 +1784,16 @@
                 }
 
                 if (isEditing) {
-                    updateGame(editingGame, date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName);
+                    updateGame(editingGame, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName);
                 } else {
-                    addNewGame(date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName);
+                    addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName);
                 }
             });
         }
 
-        function updateGame(game, date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
+        function updateGame(game, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
             game.date = date;
-            game.competitionType = competitionType;
+            game.venue = venue;
             game.homeTeam = homeTeam;
             game.awayTeam = awayTeam;
             game.homeScore = homeScore;
@@ -1714,9 +1823,8 @@
                         photo: null,
                         dob: '',
                         cityOfBirth: '',
-                        previousClubs: '',
+                        previousClubs: [],
                         ntDebutDate: '',
-                        previousClubsColor: '#1f2937',
                         createdAt: new Date().toISOString()
                     };
                     appState.data.players.push(player);
@@ -1749,7 +1857,7 @@
             navigateTo('gameDetail', game.id);
         }
 
-        function addNewGame(date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
+        function addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
             const playerStats = [];
             playersData.forEach(pData => {
                 const existingPlayer = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
@@ -1770,9 +1878,8 @@
                         photo: null,
                         dob: '',
                         cityOfBirth: '',
-                        previousClubs: '',
+                        previousClubs: [],
                         ntDebutDate: '',
-                        previousClubsColor: '#1f2937',
                         createdAt: new Date().toISOString()
                     };
                     appState.data.players.push(newPlayer);
@@ -1794,13 +1901,13 @@
             const newGame = {
                 id: gameId,
                 date: date,
-                competitionType: competitionType,
+                venue: venue,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
                 homeScore: homeScore,
                 awayScore: awayScore,
                 occasion: occasion || '',
-                photo: null,
+                photos: [],
                 playerStats: playerStats,
                 manOfTheMatch: motmPlayerId,
                 createdAt: new Date().toISOString()
