@@ -223,6 +223,8 @@
 
         .list-item .item-info {
             flex-grow: 1;
+            display: flex;
+            align-items: center;
         }
 
         .list-item .item-title {
@@ -255,7 +257,30 @@
 
         .badge.occasion {
             background-color: #8b5cf6;
-            /* Purple for occasion */
+        }
+
+        /* ============ PLAYER LIST AVATAR ============ */
+        .player-list-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            overflow: hidden;
+            margin-right: 10px;
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        .player-list-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         /* ============ PLAYER PROFILE ============ */
@@ -311,6 +336,12 @@
         .stat-box .stat-label {
             color: var(--text-light);
             font-size: 0.9rem;
+        }
+
+        .stat-box.motm {
+            flex: 0 0 120px;
+            max-width: 120px;
+            min-width: 120px;
         }
 
         .stats-container {
@@ -434,6 +465,18 @@
             color: #5b21b6;
         }
 
+        /* ============ GAME PHOTO ============ */
+        .game-photo {
+            max-width: 250px;
+            max-height: 250px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: var(--radius);
+            margin: 1rem auto;
+            display: block;
+        }
+
         /* ============ PLAYER ROW (ADD GAME) ============ */
         .player-row {
             display: grid;
@@ -463,14 +506,6 @@
             font-weight: bold;
         }
 
-        /* ============ GAME PHOTO UPLOAD ============ */
-        .game-photo {
-            max-width: 100%;
-            height: auto;
-            border-radius: var(--radius);
-            margin: 1rem 0;
-        }
-
         /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
             .form-row {
@@ -492,6 +527,11 @@
             .game-card {
                 flex-wrap: wrap;
                 justify-content: center;
+            }
+            .game-info-right {
+                width: 100%;
+                justify-content: center;
+                margin-top: 0.5rem;
             }
         }
     </style>
@@ -542,7 +582,8 @@
                         dob: player.dob || '',
                         cityOfBirth: player.cityOfBirth || '',
                         previousClubs: player.previousClubs || '',
-                        ntDebutDate: player.ntDebutDate || ''
+                        ntDebutDate: player.ntDebutDate || '',
+                        previousClubsColor: player.previousClubsColor || '#1f2937'
                     }));
                     data.games = data.games.map(game => ({
                         ...game,
@@ -593,7 +634,6 @@
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
             if (isNaN(date)) return dateString;
-            // Format: Day Month Year (e.g., 21 Jan 2025)
             return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         }
 
@@ -665,7 +705,6 @@
                 appState.currentThreadId = null;
                 appState.currentGameId = null;
             }
-            // Reset editing flags when navigating away from add/edit views
             if (view !== 'addPlayer' && view !== 'addGame') {
                 appState.editingPlayerId = null;
                 appState.editingGameId = null;
@@ -726,10 +765,6 @@
             const { players, games, threads } = appState.data;
             const totalPlayers = players.length;
             const totalGames = games.length;
-            const totalThreads = threads.length;
-            const totalReplies = threads.reduce((acc, t) => acc + (t.replies ? t.replies.length : 0), 0);
-
-            const totalNtApp = players.reduce((acc, p) => acc + (p.ntAppearances || 0), 0);
 
             const card = document.createElement('div');
             card.className = 'card';
@@ -744,18 +779,6 @@
                     <div class="stat-box">
                         <div class="stat-number">${totalGames}</div>
                         <div class="stat-label">Games</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">${totalThreads}</div>
-                        <div class="stat-label">Forum Threads</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">${totalReplies}</div>
-                        <div class="stat-label">Replies</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">${totalNtApp}</div>
-                        <div class="stat-label">National Team Appearances</div>
                     </div>
                 </div>
                 <div style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
@@ -799,7 +822,6 @@
         function renderPlayers(container) {
             const { players } = appState.data;
 
-            // Helper functions
             const getPoints = (playerId) => getPlayerTotalPoints(playerId);
             const getApps = (playerId) => getPlayerAppearances(playerId).nt;
 
@@ -871,10 +893,8 @@
                 renderPlayerList(listContainer, filtered);
             }
 
-            // Initial render
             updateList();
 
-            // Event listeners
             searchInput.addEventListener('input', updateList);
             sortSelect.addEventListener('change', updateList);
         }
@@ -890,11 +910,13 @@
                 item.className = 'list-item';
                 const appearances = getPlayerAppearances(player.id);
                 const totalPoints = getPlayerTotalPoints(player.id);
-                const positionHtml = player.position ? `<div class="item-subtitle">${escapeHtml(player.position)}</div>` : '';
+                const avatarHtml = player.photo
+                    ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}">`
+                    : escapeHtml(player.name.charAt(0).toUpperCase());
                 item.innerHTML = `
                     <div class="item-info">
+                        <div class="player-list-avatar">${avatarHtml}</div>
                         <div class="item-title">${escapeHtml(player.name)}</div>
-                        ${positionHtml}
                     </div>
                     <div>
                         <span class="badge nt">${appearances.nt}</span>
@@ -946,19 +968,17 @@
                         <div class="stat-number">${totalPoints}</div>
                         <div class="stat-label">Total Points</div>
                     </div>
-                    <div class="stat-box">
+                    <div class="stat-box motm">
                         <div class="stat-number">${motmCount}</div>
                         <div class="stat-label">MOTM Awards</div>
                     </div>
                 </div>
                 <div style="margin-top:1rem;">
-                    <h3>Additional Information</h3>
                     <p><strong>Date of Birth:</strong> ${player.dob ? formatDate(player.dob) : 'N/A'}</p>
                     <p><strong>City of Birth:</strong> ${player.cityOfBirth || 'N/A'}</p>
-                    <p><strong>Previous Clubs:</strong> ${player.previousClubs || 'N/A'}</p>
+                    <p><strong>Previous Clubs:</strong> <span id="prevClubsText" style="color: ${player.previousClubsColor || '#1f2937'}; font-weight: bold;">${player.previousClubs || 'N/A'}</span> <input type="color" id="prevClubsColorPicker" value="${player.previousClubsColor || '#1f2937'}"></p>
                     <p><strong>NT Debut Date:</strong> ${player.ntDebutDate ? formatDate(player.ntDebutDate) : 'N/A'}</p>
                 </div>
-                <h3>Games Played</h3>
                 <div id="playerGamesList"></div>
                 <div style="margin-top:1rem; display:flex; gap:0.5rem;">
                     <button class="secondary" onclick="navigateTo('players')">Back to Players</button>
@@ -994,6 +1014,18 @@
                 });
             }
 
+            // Previous clubs color picker
+            const colorPicker = card.querySelector('#prevClubsColorPicker');
+            const prevClubsSpan = card.querySelector('#prevClubsText');
+            if (colorPicker && prevClubsSpan) {
+                colorPicker.addEventListener('input', (e) => {
+                    const newColor = e.target.value;
+                    prevClubsSpan.style.color = newColor;
+                    player.previousClubsColor = newColor;
+                    saveData(appState.data);
+                });
+            }
+
             const gamesContainer = card.querySelector('#playerGamesList');
             if (playerGames.length === 0) {
                 gamesContainer.innerHTML = '<p>No games recorded for this player.</p>';
@@ -1008,14 +1040,16 @@
                     }
                     const isMotm = game.manOfTheMatch === playerId;
                     gameDiv.innerHTML = `
-                        <div>
+                        <div style="flex:1;">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
                             <div class="thread-meta">${formatDate(game.date)}</div>
                         </div>
-                        <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                        ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
-                        <span class="badge">${points}</span>
-                        ${isMotm ? '<span class="badge nt">MOTM</span>' : ''}
+                        <div class="game-info-right" style="display:flex; align-items:center; gap:0.5rem;">
+                            <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
+                            ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
+                            <span class="badge">${points}</span>
+                            ${isMotm ? '<span class="badge nt">MOTM</span>' : ''}
+                        </div>
                     `;
                     gameDiv.addEventListener('click', () => navigateTo('gameDetail', game.id));
                     gamesContainer.appendChild(gameDiv);
@@ -1033,6 +1067,9 @@
                 <h2>📅 Games</h2>
                 <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
                     <input type="text" id="gameSearch" placeholder="Search games by team..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
+                    <select id="gameOccasionFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius); background:white;">
+                        <option value="all">All Occasions</option>
+                    </select>
                     <select id="gameSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius); background:white;">
                         <option value="date_desc">Date (Newest First)</option>
                         <option value="date_asc">Date (Oldest First)</option>
@@ -1053,14 +1090,28 @@
 
             const listContainer = card.querySelector('#gamesList');
             const searchInput = card.querySelector('#gameSearch');
+            const occasionFilter = card.querySelector('#gameOccasionFilter');
             const sortSelect = card.querySelector('#gameSort');
+
+            // Populate occasion filter
+            const occasions = [...new Set(games.map(g => g.occasion).filter(Boolean))];
+            occasions.forEach(occ => {
+                const option = document.createElement('option');
+                option.value = occ;
+                option.textContent = occ;
+                occasionFilter.appendChild(option);
+            });
 
             function updateList() {
                 const searchTerm = searchInput.value.trim().toLowerCase();
-                let filtered = games.filter(g => 
-                    g.homeTeam.toLowerCase().includes(searchTerm) || 
-                    g.awayTeam.toLowerCase().includes(searchTerm)
-                );
+                const selectedOccasion = occasionFilter.value;
+
+                let filtered = games.filter(g => {
+                    const matchesSearch = g.homeTeam.toLowerCase().includes(searchTerm) || 
+                                         g.awayTeam.toLowerCase().includes(searchTerm);
+                    const matchesOccasion = selectedOccasion === 'all' || (g.occasion || '') === selectedOccasion;
+                    return matchesSearch && matchesOccasion;
+                });
 
                 const sortBy = sortSelect.value;
                 filtered = [...filtered].sort((a, b) => {
@@ -1092,6 +1143,7 @@
             updateList();
 
             searchInput.addEventListener('input', updateList);
+            occasionFilter.addEventListener('change', updateList);
             sortSelect.addEventListener('change', updateList);
         }
 
@@ -1109,8 +1161,10 @@
                         <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
                         <div class="thread-meta">${formatDate(game.date)}</div>
                     </div>
-                    <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                    ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
+                    <div class="game-info-right" style="display:flex; align-items:center; gap:0.5rem;">
+                        <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
+                        ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
+                    </div>
                 `;
                 gameCard.addEventListener('click', () => navigateTo('gameDetail', game.id));
                 container.appendChild(gameCard);
@@ -1216,7 +1270,6 @@
                         playerItem.innerHTML = `
                             <div class="item-info">
                                 <div class="item-title">${escapeHtml(player.name)}</div>
-                                ${player.position ? `<div class="item-subtitle">${escapeHtml(player.position)}</div>` : ''}
                             </div>
                             <span class="badge">${stat.points || 0}</span>
                             ${isMotm ? '<span class="badge nt">MOTM</span>' : ''}
@@ -1399,14 +1452,12 @@
 
                 const handlePhoto = (photoDataUrl) => {
                     if (isEditing) {
-                        // Update existing player
                         Object.assign(editingPlayer, playerData);
                         if (photoDataUrl) editingPlayer.photo = photoDataUrl;
                         saveData(appState.data);
                         appState.editingPlayerId = null;
                         navigateTo('playerDetail', editingPlayer.id);
                     } else {
-                        // Add new player
                         addNewPlayer(playerData, photoDataUrl);
                     }
                 };
@@ -1424,7 +1475,6 @@
             });
         }
 
-        // Modified addNewPlayer to accept playerData object
         function addNewPlayer(playerData, photoDataUrl) {
             const playerId = generateId('player', appState.data.nextPlayerId);
             const newPlayer = {
@@ -1438,6 +1488,7 @@
                 cityOfBirth: playerData.cityOfBirth || '',
                 previousClubs: playerData.previousClubs || '',
                 ntDebutDate: playerData.ntDebutDate || '',
+                previousClubsColor: '#1f2937',
                 createdAt: new Date().toISOString()
             };
             appState.data.players.push(newPlayer);
@@ -1516,7 +1567,6 @@
             const motmSelect = card.querySelector('#motmSelect');
             const addPlayerRowBtn = card.querySelector('#addPlayerRowBtn');
 
-            // Prepopulate player rows if editing
             if (isEditing && editingGame.playerStats) {
                 editingGame.playerStats.forEach(stat => {
                     const player = getPlayerById(stat.playerId);
@@ -1557,7 +1607,6 @@
                     const n = input.value.trim();
                     if (n) names.push(n);
                 });
-                // Clear existing options (keep first placeholder)
                 while (motmSelect.options.length > 1) {
                     motmSelect.remove(1);
                 }
@@ -1572,21 +1621,16 @@
                 }
             }
 
-            // Add initial row if not editing
             if (!isEditing) {
                 addPlayerRow();
             }
 
-            // Update MOTM options when player names change
             rowsContainer.addEventListener('input', updateMotmOptions);
-
             addPlayerRowBtn.addEventListener('click', addPlayerRow);
 
-            // Set current MOTM if editing
             if (isEditing && editingGame.manOfTheMatch) {
                 const motmPlayer = getPlayerById(editingGame.manOfTheMatch);
                 if (motmPlayer) {
-                    // We'll set after options populated
                     setTimeout(() => {
                         motmSelect.value = motmPlayer.name;
                     }, 0);
@@ -1638,9 +1682,7 @@
             });
         }
 
-        // Helper to update existing game
         function updateGame(game, date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
-            // Update basic fields
             game.date = date;
             game.competitionType = competitionType;
             game.homeTeam = homeTeam;
@@ -1649,9 +1691,7 @@
             game.awayScore = awayScore;
             game.occasion = occasion;
 
-            // Handle player stats: rebuild
             const newPlayerStats = [];
-            // Decrement appearances for old players that are removed
             if (game.playerStats) {
                 game.playerStats.forEach(oldStat => {
                     const player = getPlayerById(oldStat.playerId);
@@ -1661,11 +1701,9 @@
                 });
             }
 
-            // Process new players
             playersData.forEach(pData => {
                 let player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
                 if (!player) {
-                    // Create new player
                     const playerId = generateId('player', appState.data.nextPlayerId);
                     player = {
                         id: playerId,
@@ -1678,11 +1716,11 @@
                         cityOfBirth: '',
                         previousClubs: '',
                         ntDebutDate: '',
+                        previousClubsColor: '#1f2937',
                         createdAt: new Date().toISOString()
                     };
                     appState.data.players.push(player);
                 } else {
-                    // Update position if provided and empty
                     if (pData.position && !player.position) {
                         player.position = pData.position;
                     }
@@ -1691,7 +1729,6 @@
                 player.ntAppearances = (player.ntAppearances || 0) + 1;
             });
 
-            // Adjust appearances: increment for new players that were not in old stats
             const oldPlayerIds = (game.playerStats || []).map(s => s.playerId);
             playersData.forEach(pData => {
                 const player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
@@ -1702,7 +1739,6 @@
 
             game.playerStats = newPlayerStats;
 
-            // Set MOTM
             if (motmName) {
                 const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase());
                 if (motmPlayer) game.manOfTheMatch = motmPlayer.id;
@@ -1713,7 +1749,6 @@
             navigateTo('gameDetail', game.id);
         }
 
-        // Modified addNewGame to accept occasion
         function addNewGame(date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
             const playerStats = [];
             playersData.forEach(pData => {
@@ -1737,6 +1772,7 @@
                         cityOfBirth: '',
                         previousClubs: '',
                         ntDebutDate: '',
+                        previousClubsColor: '#1f2937',
                         createdAt: new Date().toISOString()
                     };
                     appState.data.players.push(newPlayer);
