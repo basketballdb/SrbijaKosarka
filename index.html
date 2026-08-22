@@ -253,6 +253,11 @@
             background-color: #f59e0b;
         }
 
+        .badge.occasion {
+            background-color: #8b5cf6;
+            /* Purple for occasion */
+        }
+
         /* ============ PLAYER PROFILE ============ */
         .player-header {
             display: flex;
@@ -398,6 +403,9 @@
         .game-score {
             font-weight: bold;
             font-size: 1.2rem;
+            text-align: center;
+            flex: 0 0 auto;
+            min-width: 80px;
         }
 
         .game-type {
@@ -415,6 +423,15 @@
         .game-type.nt {
             background-color: #fef3c7;
             color: #92400e;
+        }
+
+        .game-occasion {
+            font-size: 0.85rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            background-color: #ede9fe;
+            color: #5b21b6;
         }
 
         /* ============ PLAYER ROW (ADD GAME) ============ */
@@ -446,6 +463,14 @@
             font-weight: bold;
         }
 
+        /* ============ GAME PHOTO UPLOAD ============ */
+        .game-photo {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+        }
+
         /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
             .form-row {
@@ -463,6 +488,10 @@
             }
             .player-row {
                 grid-template-columns: 1fr;
+            }
+            .game-card {
+                flex-wrap: wrap;
+                justify-content: center;
             }
         }
     </style>
@@ -506,7 +535,21 @@
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
                 try {
-                    return JSON.parse(stored);
+                    const data = JSON.parse(stored);
+                    // Migrate old data: ensure new fields exist
+                    data.players = data.players.map(player => ({
+                        ...player,
+                        dob: player.dob || '',
+                        cityOfBirth: player.cityOfBirth || '',
+                        previousClubs: player.previousClubs || '',
+                        ntDebutDate: player.ntDebutDate || ''
+                    }));
+                    data.games = data.games.map(game => ({
+                        ...game,
+                        occasion: game.occasion || '',
+                        photo: game.photo || null
+                    }));
+                    return data;
                 } catch (e) {
                     console.error('Error parsing stored data, using defaults', e);
                     return { ...defaultData };
@@ -525,6 +568,8 @@
             currentPlayerId: null,
             currentThreadId: null,
             currentGameId: null,
+            editingPlayerId: null,
+            editingGameId: null,
             data: loadData()
         };
 
@@ -619,6 +664,11 @@
                 appState.currentPlayerId = null;
                 appState.currentThreadId = null;
                 appState.currentGameId = null;
+            }
+            // Reset editing flags when navigating away from add/edit views
+            if (view !== 'addPlayer' && view !== 'addGame') {
+                appState.editingPlayerId = null;
+                appState.editingGameId = null;
             }
             document.querySelectorAll('nav a').forEach(link => {
                 link.classList.remove('active');
@@ -731,7 +781,7 @@
                             <div class="thread-meta">${formatDate(game.date)}</div>
                         </div>
                         <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                        <span class="game-type ${game.competitionType}">${getCompetitionTypeLabel(game.competitionType)}</span>
+                        ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
                     `;
                     gameDiv.addEventListener('click', () => navigateTo('gameDetail', game.id));
                     recentCard.appendChild(gameDiv);
@@ -884,16 +934,13 @@
                         <div class="item-subtitle">${player.position ? escapeHtml(player.position) : 'Position not set'}</div>
                         <button type="button" class="secondary" id="uploadPhotoBtn" style="margin-top:0.5rem;">${player.photo ? 'Change Photo' : 'Upload Photo'}</button>
                         <input type="file" id="photoFileInput" accept="image/*" style="display:none;">
+                        <button class="secondary" id="editPlayerBtn" style="margin-left:0.5rem;">Edit Player</button>
                     </div>
                 </div>
                 <div class="stats-container">
                     <div class="stat-box">
                         <div class="stat-number">${appearances.nt}</div>
                         <div class="stat-label">National Team Appearances</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">${playerGames.length}</div>
-                        <div class="stat-label">Total Games</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-number">${totalPoints}</div>
@@ -903,6 +950,13 @@
                         <div class="stat-number">${motmCount}</div>
                         <div class="stat-label">MOTM Awards</div>
                     </div>
+                </div>
+                <div style="margin-top:1rem;">
+                    <h3>Additional Information</h3>
+                    <p><strong>Date of Birth:</strong> ${player.dob ? formatDate(player.dob) : 'N/A'}</p>
+                    <p><strong>City of Birth:</strong> ${player.cityOfBirth || 'N/A'}</p>
+                    <p><strong>Previous Clubs:</strong> ${player.previousClubs || 'N/A'}</p>
+                    <p><strong>NT Debut Date:</strong> ${player.ntDebutDate ? formatDate(player.ntDebutDate) : 'N/A'}</p>
                 </div>
                 <h3>Games Played</h3>
                 <div id="playerGamesList"></div>
@@ -931,6 +985,15 @@
                 });
             }
 
+            // Edit player button
+            const editBtn = card.querySelector('#editPlayerBtn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    appState.editingPlayerId = player.id;
+                    navigateTo('addPlayer');
+                });
+            }
+
             const gamesContainer = card.querySelector('#playerGamesList');
             if (playerGames.length === 0) {
                 gamesContainer.innerHTML = '<p>No games recorded for this player.</p>';
@@ -950,7 +1013,7 @@
                             <div class="thread-meta">${formatDate(game.date)}</div>
                         </div>
                         <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                        <span class="game-type ${game.competitionType}">${getCompetitionTypeLabel(game.competitionType)}</span>
+                        ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
                         <span class="badge">${points}</span>
                         ${isMotm ? '<span class="badge nt">MOTM</span>' : ''}
                     `;
@@ -963,12 +1026,23 @@
         // -------- GAMES LIST VIEW --------
         function renderGames(container) {
             const { games } = appState.data;
+
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
                 <h2>📅 Games</h2>
-                <div style="margin-bottom:1rem;">
-                    <input type="text" id="gameSearch" placeholder="Search games by team..." style="width:100%; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
+                <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+                    <input type="text" id="gameSearch" placeholder="Search games by team..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
+                    <select id="gameSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius); background:white;">
+                        <option value="date_desc">Date (Newest First)</option>
+                        <option value="date_asc">Date (Oldest First)</option>
+                        <option value="opponent_asc">Opponent (A → Z)</option>
+                        <option value="opponent_desc">Opponent (Z → A)</option>
+                        <option value="occasion_asc">Occasion (A → Z)</option>
+                        <option value="occasion_desc">Occasion (Z → A)</option>
+                        <option value="year_desc">Year (Newest First)</option>
+                        <option value="year_asc">Year (Oldest First)</option>
+                    </select>
                 </div>
                 <div id="gamesList"></div>
                 <div style="margin-top:1rem;">
@@ -978,13 +1052,47 @@
             container.appendChild(card);
 
             const listContainer = card.querySelector('#gamesList');
-            renderGameList(listContainer, games);
+            const searchInput = card.querySelector('#gameSearch');
+            const sortSelect = card.querySelector('#gameSort');
 
-            card.querySelector('#gameSearch').addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                const filtered = games.filter(g => g.homeTeam.toLowerCase().includes(searchTerm) || g.awayTeam.toLowerCase().includes(searchTerm));
+            function updateList() {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                let filtered = games.filter(g => 
+                    g.homeTeam.toLowerCase().includes(searchTerm) || 
+                    g.awayTeam.toLowerCase().includes(searchTerm)
+                );
+
+                const sortBy = sortSelect.value;
+                filtered = [...filtered].sort((a, b) => {
+                    switch (sortBy) {
+                        case 'date_desc':
+                            return new Date(b.date) - new Date(a.date);
+                        case 'date_asc':
+                            return new Date(a.date) - new Date(b.date);
+                        case 'opponent_asc':
+                            return (a.homeTeam + a.awayTeam).localeCompare(b.homeTeam + b.awayTeam);
+                        case 'opponent_desc':
+                            return (b.homeTeam + b.awayTeam).localeCompare(a.homeTeam + a.awayTeam);
+                        case 'occasion_asc':
+                            return (a.occasion || '').localeCompare(b.occasion || '');
+                        case 'occasion_desc':
+                            return (b.occasion || '').localeCompare(a.occasion || '');
+                        case 'year_desc':
+                            return new Date(b.date).getFullYear() - new Date(a.date).getFullYear();
+                        case 'year_asc':
+                            return new Date(a.date).getFullYear() - new Date(b.date).getFullYear();
+                        default:
+                            return new Date(b.date) - new Date(a.date);
+                    }
+                });
+
                 renderGameList(listContainer, filtered);
-            });
+            }
+
+            updateList();
+
+            searchInput.addEventListener('input', updateList);
+            sortSelect.addEventListener('change', updateList);
         }
 
         function renderGameList(container, games) {
@@ -993,17 +1101,16 @@
                 container.innerHTML = '<p>No games recorded.</p>';
                 return;
             }
-            const sortedGames = [...games].sort((a,b) => new Date(b.date) - new Date(a.date));
-            sortedGames.forEach(game => {
+            games.forEach(game => {
                 const gameCard = document.createElement('div');
                 gameCard.className = 'game-card';
                 gameCard.innerHTML = `
-                    <div>
+                    <div style="flex:1;">
                         <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
                         <div class="thread-meta">${formatDate(game.date)}</div>
                     </div>
                     <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                    <span class="game-type ${game.competitionType}">${getCompetitionTypeLabel(game.competitionType)}</span>
+                    ${game.occasion ? `<span class="game-occasion">${escapeHtml(game.occasion)}</span>` : ''}
                 `;
                 gameCard.addEventListener('click', () => navigateTo('gameDetail', game.id));
                 container.appendChild(gameCard);
@@ -1024,23 +1131,76 @@
             card.innerHTML = `
                 <h2>${escapeHtml(game.homeTeam)} vs ${escapeHtml(game.awayTeam)}</h2>
                 <div class="thread-meta">${formatDate(game.date)}</div>
-                <div style="margin-top:0.5rem;">
-                    <span class="game-type ${game.competitionType}">${getCompetitionTypeLabel(game.competitionType)}</span>
-                </div>
+                ${game.occasion ? `<div style="margin-top:0.5rem;"><span class="game-occasion">${escapeHtml(game.occasion)}</span></div>` : ''}
                 <div style="margin-top:0.5rem;">
                     <strong>Man of the Match:</strong> ${game.manOfTheMatch ? escapeHtml(getPlayerName(game.manOfTheMatch)) : 'Not selected'}
                 </div>
-                <div style="margin-top:1rem; font-size:1.5rem; font-weight:bold;">
+                <div style="margin-top:1rem; font-size:1.5rem; font-weight:bold; text-align:center;">
                     ${game.homeScore} - ${game.awayScore}
+                </div>
+                ${game.photo ? `<img src="${game.photo}" alt="Game Photo" class="game-photo">` : ''}
+                <div style="margin-top:1.5rem;">
+                    <h3>Game Photo</h3>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <button class="secondary" id="uploadGamePhotoBtn">Upload Photo from PC</button>
+                        <input type="file" id="gamePhotoFileInput" accept="image/*" style="display:none;">
+                        <button class="secondary" id="photoUrlBtn">Use Image URL</button>
+                        <input type="url" id="gamePhotoUrl" placeholder="https://example.com/image.jpg" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
+                        <button class="secondary" id="setPhotoUrlBtn">Set URL</button>
+                    </div>
                 </div>
                 <h3 style="margin-top:1.5rem;">Players & Points</h3>
                 <div id="gamePlayers"></div>
                 <div style="margin-top:1rem; display:flex; gap:0.5rem;">
                     <button class="secondary" onclick="navigateTo('games')">Back to Games</button>
+                    <button class="secondary" id="editGameBtn">Edit Game</button>
                     <button class="danger" onclick="deleteGame('${game.id}')">Delete Game</button>
                 </div>
             `;
             container.appendChild(card);
+
+            // Game photo upload from PC
+            const uploadBtn = card.querySelector('#uploadGamePhotoBtn');
+            const fileInput = card.querySelector('#gamePhotoFileInput');
+            if (uploadBtn && fileInput) {
+                uploadBtn.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        game.photo = ev.target.result;
+                        saveData(appState.data);
+                        renderApp();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Game photo from URL
+            const setUrlBtn = card.querySelector('#setPhotoUrlBtn');
+            const urlInput = card.querySelector('#gamePhotoUrl');
+            if (setUrlBtn && urlInput) {
+                setUrlBtn.addEventListener('click', () => {
+                    const url = urlInput.value.trim();
+                    if (url) {
+                        game.photo = url;
+                        saveData(appState.data);
+                        renderApp();
+                    } else {
+                        alert('Please enter a valid image URL.');
+                    }
+                });
+            }
+
+            // Edit game button
+            const editBtn = card.querySelector('#editGameBtn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    appState.editingGameId = game.id;
+                    navigateTo('addGame');
+                });
+            }
 
             const playersContainer = card.querySelector('#gamePlayers');
             const playerStats = game.playerStats || [];
@@ -1157,42 +1317,69 @@
             }
         }
 
-        // -------- ADD PLAYER VIEW --------
+        // -------- ADD/EDIT PLAYER VIEW --------
         function renderAddPlayer(container) {
+            const editingPlayerId = appState.editingPlayerId;
+            const editingPlayer = editingPlayerId ? getPlayerById(editingPlayerId) : null;
+            const isEditing = !!editingPlayer;
+
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <h2>➕ Add New Player</h2>
+                <h2>${isEditing ? '✏️ Edit Player' : '➕ Add New Player'}</h2>
                 <form id="addPlayerForm">
                     <div class="form-group">
                         <label for="playerName">Player Name *</label>
-                        <input type="text" id="playerName" required placeholder="e.g., Luka Doncic">
+                        <input type="text" id="playerName" required placeholder="e.g., Luka Doncic" value="${isEditing ? escapeHtml(editingPlayer.name) : ''}">
                     </div>
                     <div class="form-group">
                         <label for="playerPosition">Position</label>
-                        <input type="text" id="playerPosition" placeholder="e.g., Point Guard">
+                        <input type="text" id="playerPosition" placeholder="e.g., Point Guard" value="${isEditing ? escapeHtml(editingPlayer.position) : ''}">
                     </div>
                     <div class="form-group">
                         <label for="playerNumber">Jersey Number</label>
-                        <input type="number" id="playerNumber" placeholder="e.g., 77" min="0" max="99">
+                        <input type="number" id="playerNumber" placeholder="e.g., 77" min="0" max="99" value="${isEditing ? (editingPlayer.number || '') : ''}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="playerDob">Date of Birth</label>
+                            <input type="date" id="playerDob" value="${isEditing ? (editingPlayer.dob || '') : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="playerCity">City of Birth</label>
+                            <input type="text" id="playerCity" placeholder="e.g., Belgrade" value="${isEditing ? escapeHtml(editingPlayer.cityOfBirth) : ''}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="playerPreviousClubs">Previous Clubs</label>
+                        <textarea id="playerPreviousClubs" rows="3" placeholder="e.g., Partizan, Real Madrid">${isEditing ? escapeHtml(editingPlayer.previousClubs) : ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="playerNtDebut">NT Debut Date</label>
+                        <input type="date" id="playerNtDebut" value="${isEditing ? (editingPlayer.ntDebutDate || '') : ''}">
                     </div>
                     <div class="form-group">
                         <label for="playerPhoto">Photo (optional)</label>
                         <input type="file" id="playerPhoto" accept="image/*">
                     </div>
                     <div class="form-actions">
-                        <button type="submit">Add Player</button>
+                        <button type="submit">${isEditing ? 'Update Player' : 'Add Player'}</button>
                         <button type="button" class="secondary" onclick="navigateTo('players')">Cancel</button>
                     </div>
                 </form>
             `;
             container.appendChild(card);
 
-            card.querySelector('#addPlayerForm').addEventListener('submit', function(e) {
+            const form = card.querySelector('#addPlayerForm');
+            form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const name = card.querySelector('#playerName').value.trim();
                 const position = card.querySelector('#playerPosition').value.trim();
                 const number = card.querySelector('#playerNumber').value.trim();
+                const dob = card.querySelector('#playerDob').value;
+                const city = card.querySelector('#playerCity').value.trim();
+                const previousClubs = card.querySelector('#playerPreviousClubs').value.trim();
+                const ntDebut = card.querySelector('#playerNtDebut').value;
                 const photoInput = card.querySelector('#playerPhoto');
 
                 if (!name) {
@@ -1200,57 +1387,110 @@
                     return;
                 }
 
+                const playerData = {
+                    name,
+                    position,
+                    number: number ? parseInt(number) : null,
+                    dob: dob || '',
+                    cityOfBirth: city,
+                    previousClubs: previousClubs,
+                    ntDebutDate: ntDebut || ''
+                };
+
+                const handlePhoto = (photoDataUrl) => {
+                    if (isEditing) {
+                        // Update existing player
+                        Object.assign(editingPlayer, playerData);
+                        if (photoDataUrl) editingPlayer.photo = photoDataUrl;
+                        saveData(appState.data);
+                        appState.editingPlayerId = null;
+                        navigateTo('playerDetail', editingPlayer.id);
+                    } else {
+                        // Add new player
+                        addNewPlayer(playerData, photoDataUrl);
+                    }
+                };
+
                 if (photoInput.files && photoInput.files[0]) {
                     const file = photoInput.files[0];
                     const reader = new FileReader();
                     reader.onload = function(ev) {
-                        addNewPlayer(name, position, number, ev.target.result);
+                        handlePhoto(ev.target.result);
                     };
                     reader.readAsDataURL(file);
                 } else {
-                    addNewPlayer(name, position, number, null);
+                    handlePhoto(null);
                 }
             });
         }
 
-        // -------- ADD GAME VIEW (with inline player creation) --------
+        // Modified addNewPlayer to accept playerData object
+        function addNewPlayer(playerData, photoDataUrl) {
+            const playerId = generateId('player', appState.data.nextPlayerId);
+            const newPlayer = {
+                id: playerId,
+                name: playerData.name,
+                position: playerData.position,
+                number: playerData.number,
+                ntAppearances: 0,
+                photo: photoDataUrl || null,
+                dob: playerData.dob || '',
+                cityOfBirth: playerData.cityOfBirth || '',
+                previousClubs: playerData.previousClubs || '',
+                ntDebutDate: playerData.ntDebutDate || '',
+                createdAt: new Date().toISOString()
+            };
+            appState.data.players.push(newPlayer);
+            saveData(appState.data);
+            navigateTo('players');
+        }
+
+        // -------- ADD/EDIT GAME VIEW --------
         function renderAddGame(container) {
+            const editingGameId = appState.editingGameId;
+            const editingGame = editingGameId ? getGameById(editingGameId) : null;
+            const isEditing = !!editingGame;
+
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <h2>➕ Add New Game</h2>
+                <h2>${isEditing ? '✏️ Edit Game' : '➕ Add New Game'}</h2>
                 <form id="addGameForm">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="gameDate">Date *</label>
-                            <input type="date" id="gameDate" required>
+                            <input type="date" id="gameDate" required value="${isEditing ? editingGame.date : ''}">
                         </div>
                         <div class="form-group">
                             <label for="competitionType">Competition Type *</label>
                             <select id="competitionType" required>
-                                <option value="nt" selected>National Team</option>
+                                <option value="nt" ${isEditing && editingGame.competitionType === 'nt' ? 'selected' : ''}>National Team</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="homeTeam">Home Team *</label>
-                            <input type="text" id="homeTeam" required placeholder="e.g., Srbija">
+                            <input type="text" id="homeTeam" required placeholder="e.g., Srbija" value="${isEditing ? escapeHtml(editingGame.homeTeam) : ''}">
                         </div>
                         <div class="form-group">
                             <label for="awayTeam">Away Team *</label>
-                            <input type="text" id="awayTeam" required placeholder="e.g., Grčka">
+                            <input type="text" id="awayTeam" required placeholder="e.g., Grčka" value="${isEditing ? escapeHtml(editingGame.awayTeam) : ''}">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="homeScore">Home Score</label>
-                            <input type="number" id="homeScore" min="0" value="0">
+                            <input type="number" id="homeScore" min="0" value="${isEditing ? editingGame.homeScore : 0}">
                         </div>
                         <div class="form-group">
                             <label for="awayScore">Away Score</label>
-                            <input type="number" id="awayScore" min="0" value="0">
+                            <input type="number" id="awayScore" min="0" value="${isEditing ? editingGame.awayScore : 0}">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="occasion">Occasion (e.g., FIBA Qualifier, Friendly, Eurobasket)</label>
+                        <input type="text" id="occasion" placeholder="e.g., Friendly" value="${isEditing ? escapeHtml(editingGame.occasion) : ''}">
                     </div>
 
                     <h3>Players & Points</h3>
@@ -1265,7 +1505,7 @@
                     <button type="button" class="secondary" id="addPlayerRowBtn">+ Add Player Row</button>
 
                     <div class="form-actions" style="margin-top:1.5rem;">
-                        <button type="submit">Add Game</button>
+                        <button type="submit">${isEditing ? 'Update Game' : 'Add Game'}</button>
                         <button type="button" class="secondary" onclick="navigateTo('games')">Cancel</button>
                     </div>
                 </form>
@@ -1275,6 +1515,39 @@
             const rowsContainer = card.querySelector('#playerRowsContainer');
             const motmSelect = card.querySelector('#motmSelect');
             const addPlayerRowBtn = card.querySelector('#addPlayerRowBtn');
+
+            // Prepopulate player rows if editing
+            if (isEditing && editingGame.playerStats) {
+                editingGame.playerStats.forEach(stat => {
+                    const player = getPlayerById(stat.playerId);
+                    if (player) {
+                        addPlayerRowWithData(player.name, player.position, stat.points);
+                    }
+                });
+            } else {
+                addPlayerRow();
+            }
+
+            function addPlayerRowWithData(name = '', position = '', points = 0) {
+                const row = document.createElement('div');
+                row.className = 'player-row';
+                row.innerHTML = `
+                    <input type="text" class="player-name-input" placeholder="Player name" required value="${escapeHtml(name)}">
+                    <input type="text" class="player-position-input" placeholder="Position (optional)" value="${escapeHtml(position)}">
+                    <input type="number" class="player-points-input" placeholder="Points" min="0" value="${points}" required>
+                    <button type="button" class="remove-btn">X</button>
+                `;
+                row.querySelector('.remove-btn').addEventListener('click', () => {
+                    row.remove();
+                    updateMotmOptions();
+                });
+                rowsContainer.appendChild(row);
+                updateMotmOptions();
+            }
+
+            function addPlayerRow() {
+                addPlayerRowWithData();
+            }
 
             function updateMotmOptions() {
                 const currentVal = motmSelect.value;
@@ -1299,30 +1572,26 @@
                 }
             }
 
-            function addPlayerRow() {
-                const row = document.createElement('div');
-                row.className = 'player-row';
-                row.innerHTML = `
-                    <input type="text" class="player-name-input" placeholder="Player name" required>
-                    <input type="text" class="player-position-input" placeholder="Position (optional)">
-                    <input type="number" class="player-points-input" placeholder="Points" min="0" value="0" required>
-                    <button type="button" class="remove-btn">X</button>
-                `;
-                row.querySelector('.remove-btn').addEventListener('click', () => {
-                    row.remove();
-                    updateMotmOptions();
-                });
-                rowsContainer.appendChild(row);
-                updateMotmOptions();
+            // Add initial row if not editing
+            if (!isEditing) {
+                addPlayerRow();
             }
-
-            // Add initial row
-            addPlayerRow();
 
             // Update MOTM options when player names change
             rowsContainer.addEventListener('input', updateMotmOptions);
 
             addPlayerRowBtn.addEventListener('click', addPlayerRow);
+
+            // Set current MOTM if editing
+            if (isEditing && editingGame.manOfTheMatch) {
+                const motmPlayer = getPlayerById(editingGame.manOfTheMatch);
+                if (motmPlayer) {
+                    // We'll set after options populated
+                    setTimeout(() => {
+                        motmSelect.value = motmPlayer.name;
+                    }, 0);
+                }
+            }
 
             card.querySelector('#addGameForm').addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1332,6 +1601,7 @@
                 const awayTeam = card.querySelector('#awayTeam').value.trim();
                 const homeScore = parseInt(card.querySelector('#homeScore').value) || 0;
                 const awayScore = parseInt(card.querySelector('#awayScore').value) || 0;
+                const occasion = card.querySelector('#occasion').value.trim();
                 const motmName = motmSelect.value;
 
                 if (!date || !homeTeam || !awayTeam) {
@@ -1360,8 +1630,148 @@
                     return;
                 }
 
-                addNewGame(date, competitionType, homeTeam, awayTeam, homeScore, awayScore, playersData, motmName);
+                if (isEditing) {
+                    updateGame(editingGame, date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName);
+                } else {
+                    addNewGame(date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName);
+                }
             });
+        }
+
+        // Helper to update existing game
+        function updateGame(game, date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
+            // Update basic fields
+            game.date = date;
+            game.competitionType = competitionType;
+            game.homeTeam = homeTeam;
+            game.awayTeam = awayTeam;
+            game.homeScore = homeScore;
+            game.awayScore = awayScore;
+            game.occasion = occasion;
+
+            // Handle player stats: rebuild
+            const newPlayerStats = [];
+            // Decrement appearances for old players that are removed
+            if (game.playerStats) {
+                game.playerStats.forEach(oldStat => {
+                    const player = getPlayerById(oldStat.playerId);
+                    if (player && !playersData.some(pd => pd.name.toLowerCase() === player.name.toLowerCase())) {
+                        player.ntAppearances = Math.max(0, (player.ntAppearances || 0) - 1);
+                    }
+                });
+            }
+
+            // Process new players
+            playersData.forEach(pData => {
+                let player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
+                if (!player) {
+                    // Create new player
+                    const playerId = generateId('player', appState.data.nextPlayerId);
+                    player = {
+                        id: playerId,
+                        name: pData.name,
+                        position: pData.position || '',
+                        number: null,
+                        ntAppearances: 0,
+                        photo: null,
+                        dob: '',
+                        cityOfBirth: '',
+                        previousClubs: '',
+                        ntDebutDate: '',
+                        createdAt: new Date().toISOString()
+                    };
+                    appState.data.players.push(player);
+                } else {
+                    // Update position if provided and empty
+                    if (pData.position && !player.position) {
+                        player.position = pData.position;
+                    }
+                }
+                newPlayerStats.push({ playerId: player.id, points: pData.points });
+                player.ntAppearances = (player.ntAppearances || 0) + 1;
+            });
+
+            // Adjust appearances: increment for new players that were not in old stats
+            const oldPlayerIds = (game.playerStats || []).map(s => s.playerId);
+            playersData.forEach(pData => {
+                const player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
+                if (player && !oldPlayerIds.includes(player.id)) {
+                    player.ntAppearances = (player.ntAppearances || 0) + 1;
+                }
+            });
+
+            game.playerStats = newPlayerStats;
+
+            // Set MOTM
+            if (motmName) {
+                const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase());
+                if (motmPlayer) game.manOfTheMatch = motmPlayer.id;
+            }
+
+            saveData(appState.data);
+            appState.editingGameId = null;
+            navigateTo('gameDetail', game.id);
+        }
+
+        // Modified addNewGame to accept occasion
+        function addNewGame(date, competitionType, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
+            const playerStats = [];
+            playersData.forEach(pData => {
+                const existingPlayer = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
+                let playerId;
+                if (existingPlayer) {
+                    if (pData.position && !existingPlayer.position) {
+                        existingPlayer.position = pData.position;
+                    }
+                    playerId = existingPlayer.id;
+                } else {
+                    playerId = generateId('player', appState.data.nextPlayerId);
+                    const newPlayer = {
+                        id: playerId,
+                        name: pData.name,
+                        position: pData.position || '',
+                        number: null,
+                        ntAppearances: 0,
+                        photo: null,
+                        dob: '',
+                        cityOfBirth: '',
+                        previousClubs: '',
+                        ntDebutDate: '',
+                        createdAt: new Date().toISOString()
+                    };
+                    appState.data.players.push(newPlayer);
+                }
+                playerStats.push({ playerId, points: pData.points });
+                const player = getPlayerById(playerId);
+                if (player) {
+                    player.ntAppearances = (player.ntAppearances || 0) + 1;
+                }
+            });
+
+            let motmPlayerId = null;
+            if (motmName) {
+                const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase());
+                if (motmPlayer) motmPlayerId = motmPlayer.id;
+            }
+
+            const gameId = generateId('game', appState.data.nextGameId);
+            const newGame = {
+                id: gameId,
+                date: date,
+                competitionType: competitionType,
+                homeTeam: homeTeam,
+                awayTeam: awayTeam,
+                homeScore: homeScore,
+                awayScore: awayScore,
+                occasion: occasion || '',
+                photo: null,
+                playerStats: playerStats,
+                manOfTheMatch: motmPlayerId,
+                createdAt: new Date().toISOString()
+            };
+            appState.data.games.push(newGame);
+            saveData(appState.data);
+            navigateTo('gameDetail', gameId);
         }
 
         // -------- ADD THREAD VIEW --------
@@ -1407,76 +1817,6 @@
         }
 
         // -------- DATA MUTATION FUNCTIONS --------
-        function addNewPlayer(name, position, number, photoDataUrl) {
-            const playerId = generateId('player', appState.data.nextPlayerId);
-            const newPlayer = {
-                id: playerId,
-                name: name,
-                position: position || '',
-                number: number ? parseInt(number) : null,
-                ntAppearances: 0,
-                photo: photoDataUrl || null,
-                createdAt: new Date().toISOString()
-            };
-            appState.data.players.push(newPlayer);
-            saveData(appState.data);
-            navigateTo('players');
-        }
-
-        function addNewGame(date, competitionType, homeTeam, awayTeam, homeScore, awayScore, playersData, motmName) {
-            const playerStats = [];
-            playersData.forEach(pData => {
-                const existingPlayer = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
-                let playerId;
-                if (existingPlayer) {
-                    if (pData.position && !existingPlayer.position) {
-                        existingPlayer.position = pData.position;
-                    }
-                    playerId = existingPlayer.id;
-                } else {
-                    playerId = generateId('player', appState.data.nextPlayerId);
-                    const newPlayer = {
-                        id: playerId,
-                        name: pData.name,
-                        position: pData.position || '',
-                        number: null,
-                        ntAppearances: 0,
-                        photo: null,
-                        createdAt: new Date().toISOString()
-                    };
-                    appState.data.players.push(newPlayer);
-                }
-                playerStats.push({ playerId, points: pData.points });
-                const player = getPlayerById(playerId);
-                if (player) {
-                    player.ntAppearances = (player.ntAppearances || 0) + 1;
-                }
-            });
-
-            let motmPlayerId = null;
-            if (motmName) {
-                const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase());
-                if (motmPlayer) motmPlayerId = motmPlayer.id;
-            }
-
-            const gameId = generateId('game', appState.data.nextGameId);
-            const newGame = {
-                id: gameId,
-                date: date,
-                competitionType: competitionType,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                homeScore: homeScore,
-                awayScore: awayScore,
-                playerStats: playerStats,
-                manOfTheMatch: motmPlayerId,
-                createdAt: new Date().toISOString()
-            };
-            appState.data.games.push(newGame);
-            saveData(appState.data);
-            navigateTo('gameDetail', gameId);
-        }
-
         function addNewThread(title, author, content) {
             const threadId = generateId('thread', appState.data.nextThreadId);
             const newThread = {
