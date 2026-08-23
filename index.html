@@ -474,8 +474,8 @@
         }
 
         .game-photo-gallery img {
-            max-width: 150px;   /* Increased from 100px */
-            max-height: 150px;
+            max-width: 200px;   /* Increased from 150px */
+            max-height: 200px;
             object-fit: cover;
             border-radius: 4px;
             border: 1px solid var(--border);
@@ -508,6 +508,48 @@
             padding: 0.4rem 0.7rem;
             cursor: pointer;
             font-weight: bold;
+        }
+
+        /* ============ W/L CIRCLES ============ */
+        .w-circle,
+        .l-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .w-circle {
+            background-color: #3b82f6; /* blue */
+        }
+
+        .l-circle {
+            background-color: #ef4444; /* red */
+        }
+
+        /* ============ MARGIN IN GAME HEADER ============ */
+        .margin-indicator {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-left: 0.5rem;
+        }
+
+        /* ============ CLUB INPUT VISIBILITY ============ */
+        .club-name-input {
+            flex: 1;
+            color: #1f2937 !important;
+            font-weight: 500;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.45rem;
         }
 
         /* ============ RESPONSIVE ============ */
@@ -547,6 +589,7 @@
             <li><a href="#" data-view="dashboard" class="active">Dashboard</a></li>
             <li><a href="#" data-view="players">Players</a></li>
             <li><a href="#" data-view="games">Games</a></li>
+            <li><a href="#" data-view="coaches">Coaches</a></li>
             <li><a href="#" data-view="forum">Forum</a></li>
             <li><a href="#" data-view="addPlayer">Add Player</a></li>
             <li><a href="#" data-view="addGame">Add Game</a></li>
@@ -607,7 +650,9 @@
                             ...game,
                             venue: game.venue || '',
                             photos: photos,
-                            occasion: game.occasion || ''
+                            occasion: game.occasion || '',
+                            coach: game.coach || '',
+                            result: game.result || ''   // 'W' or 'L' or ''
                         };
                     });
                     return data;
@@ -657,7 +702,7 @@
             return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         }
 
-        // New image compression utility
+        // Image compression utility
         function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -666,7 +711,6 @@
                     let width = img.width;
                     let height = img.height;
 
-                    // Scale down if larger than max dimensions
                     if (width > maxWidth || height > maxHeight) {
                         if (width > height) {
                             height = Math.round((height * maxWidth) / width);
@@ -681,8 +725,6 @@
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-
-                    // Use JPEG to reduce size; switch to 'image/png' if transparency is needed
                     const dataUrl = canvas.toDataURL('image/jpeg', quality);
                     URL.revokeObjectURL(img.src);
                     resolve(dataUrl);
@@ -749,7 +791,6 @@
             return appState.data.games.filter(g => g.manOfTheMatch === playerId).length;
         }
 
-        // Helper to get occasion style
         function getOccasionStyle(occasion) {
             const mapping = {
                 'friendly': { bg: '#fee2e2', color: '#991b1b' },
@@ -832,6 +873,9 @@
                 case 'gameDetail':
                     renderGameDetail(appDiv);
                     break;
+                case 'coaches':
+                    renderCoaches(appDiv);
+                    break;
                 case 'forum':
                     renderForum(appDiv);
                     break;
@@ -876,6 +920,7 @@
                 <div style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
                     <button class="secondary" onclick="navigateTo('players')">View Players</button>
                     <button class="secondary" onclick="navigateTo('games')">View Games</button>
+                    <button class="secondary" onclick="navigateTo('coaches')">View Coaches</button>
                     <button class="secondary" onclick="navigateTo('forum')">Go to Forum</button>
                     <button onclick="navigateTo('addGame')">Add New Game</button>
                 </div>
@@ -891,12 +936,18 @@
                     const gameDiv = document.createElement('div');
                     gameDiv.className = 'game-card';
                     const occasionStyle = getOccasionStyle(game.occasion);
+                    const margin = game.homeScore - game.awayScore;
+                    const marginSign = game.result === 'W' ? '+' : game.result === 'L' ? '-' : '';
                     gameDiv.innerHTML = `
                         <div style="flex:1;">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
                             <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                         </div>
-                        <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
+                            <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
+                            ${marginSign ? `<span class="margin-indicator">${marginSign}${Math.abs(margin)}</span>` : ''}
+                        </div>
                         ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color};">${escapeHtml(game.occasion)}</span>` : ''}
                     `;
                     gameDiv.addEventListener('click', () => navigateTo('gameDetail', game.id));
@@ -966,20 +1017,13 @@
                 const sortBy = sortSelect.value;
                 filtered = [...filtered].sort((a, b) => {
                     switch (sortBy) {
-                        case 'name_asc':
-                            return a.name.localeCompare(b.name);
-                        case 'name_desc':
-                            return b.name.localeCompare(a.name);
-                        case 'apps_desc':
-                            return getApps(b.id) - getApps(a.id);
-                        case 'apps_asc':
-                            return getApps(a.id) - getApps(b.id);
-                        case 'pts_desc':
-                            return getPoints(b.id) - getPoints(a.id);
-                        case 'pts_asc':
-                            return getPoints(a.id) - getPoints(b.id);
-                        default:
-                            return defaultSort(a, b);
+                        case 'name_asc': return a.name.localeCompare(b.name);
+                        case 'name_desc': return b.name.localeCompare(a.name);
+                        case 'apps_desc': return getApps(b.id) - getApps(a.id);
+                        case 'apps_asc': return getApps(a.id) - getApps(b.id);
+                        case 'pts_desc': return getPoints(b.id) - getPoints(a.id);
+                        case 'pts_asc': return getPoints(a.id) - getPoints(b.id);
+                        default: return defaultSort(a, b);
                     }
                 });
 
@@ -987,7 +1031,6 @@
             }
 
             updateList();
-
             searchInput.addEventListener('input', updateList);
             sortSelect.addEventListener('change', updateList);
         }
@@ -1083,7 +1126,6 @@
             `;
             container.appendChild(card);
 
-            // Edit player button (only)
             const editBtn = card.querySelector('#editPlayerBtn');
             if (editBtn) {
                 editBtn.addEventListener('click', () => {
@@ -1092,7 +1134,6 @@
                 });
             }
 
-            // Render games compactly
             const gamesContainer = card.querySelector('#playerGamesList');
             if (playerGames.length === 0) {
                 gamesContainer.innerHTML = '<p>No games recorded for this player.</p>';
@@ -1109,13 +1150,20 @@
                         if (stat) points = stat.points || 0;
                     }
                     const isMotm = game.manOfTheMatch === playerId;
+                    const occasionStyle = getOccasionStyle(game.occasion);
+                    const margin = game.homeScore - game.awayScore;
+                    const marginSign = game.result === 'W' ? '+' : game.result === 'L' ? '-' : '';
                     gameDiv.innerHTML = `
                         <div style="flex:1; display:flex; align-items:center;">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
                             <span class="thread-meta" style="margin-left:0.5rem;">${formatDate(game.date)}</span>
+                            ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
                         </div>
-                        <div class="game-score" style="flex:0 0 60px; min-width:60px; font-size:1rem;">${game.homeScore} - ${game.awayScore}</div>
-                        ${game.occasion ? `<span class="game-occasion" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${escapeHtml(game.occasion)}</span>` : ''}
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <div class="game-score" style="flex:0 0 60px; min-width:60px; font-size:1rem;">${game.homeScore} - ${game.awayScore}</div>
+                            ${marginSign ? `<span class="margin-indicator" style="font-size:0.9rem;">${marginSign}${Math.abs(margin)}</span>` : ''}
+                        </div>
+                        ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color}; font-size:0.7rem; padding:0.1rem 0.4rem;">${escapeHtml(game.occasion)}</span>` : ''}
                         <span class="badge" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${points}</span>
                         ${isMotm ? '<span class="badge nt" style="font-size:0.7rem; padding:0.1rem 0.4rem;">MOTM</span>' : ''}
                     `;
@@ -1161,7 +1209,6 @@
             const occasionFilter = card.querySelector('#gameOccasionFilter');
             const sortSelect = card.querySelector('#gameSort');
 
-            // Populate occasion filter
             const occasions = [...new Set(games.map(g => g.occasion).filter(Boolean))];
             occasions.forEach(occ => {
                 const option = document.createElement('option');
@@ -1184,24 +1231,15 @@
                 const sortBy = sortSelect.value;
                 filtered = [...filtered].sort((a, b) => {
                     switch (sortBy) {
-                        case 'date_desc':
-                            return new Date(b.date) - new Date(a.date);
-                        case 'date_asc':
-                            return new Date(a.date) - new Date(b.date);
-                        case 'opponent_asc':
-                            return (a.homeTeam + a.awayTeam).localeCompare(b.homeTeam + b.awayTeam);
-                        case 'opponent_desc':
-                            return (b.homeTeam + b.awayTeam).localeCompare(a.homeTeam + a.awayTeam);
-                        case 'occasion_asc':
-                            return (a.occasion || '').localeCompare(b.occasion || '');
-                        case 'occasion_desc':
-                            return (b.occasion || '').localeCompare(a.occasion || '');
-                        case 'year_desc':
-                            return new Date(b.date).getFullYear() - new Date(a.date).getFullYear();
-                        case 'year_asc':
-                            return new Date(a.date).getFullYear() - new Date(b.date).getFullYear();
-                        default:
-                            return new Date(b.date) - new Date(a.date);
+                        case 'date_desc': return new Date(b.date) - new Date(a.date);
+                        case 'date_asc': return new Date(a.date) - new Date(b.date);
+                        case 'opponent_asc': return (a.homeTeam + a.awayTeam).localeCompare(b.homeTeam + b.awayTeam);
+                        case 'opponent_desc': return (b.homeTeam + b.awayTeam).localeCompare(a.homeTeam + a.awayTeam);
+                        case 'occasion_asc': return (a.occasion || '').localeCompare(b.occasion || '');
+                        case 'occasion_desc': return (b.occasion || '').localeCompare(a.occasion || '');
+                        case 'year_desc': return new Date(b.date).getFullYear() - new Date(a.date).getFullYear();
+                        case 'year_asc': return new Date(a.date).getFullYear() - new Date(b.date).getFullYear();
+                        default: return new Date(b.date) - new Date(a.date);
                     }
                 });
 
@@ -1209,7 +1247,6 @@
             }
 
             updateList();
-
             searchInput.addEventListener('input', updateList);
             occasionFilter.addEventListener('change', updateList);
             sortSelect.addEventListener('change', updateList);
@@ -1225,15 +1262,19 @@
                 const gameCard = document.createElement('div');
                 gameCard.className = 'game-card';
                 const occasionStyle = getOccasionStyle(game.occasion);
+                const margin = game.homeScore - game.awayScore;
+                const marginSign = game.result === 'W' ? '+' : game.result === 'L' ? '-' : '';
                 gameCard.innerHTML = `
                     <div style="flex:1;">
                         <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
                         <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                     </div>
-                    <div class="game-info-right" style="display:flex; align-items:center; gap:0.5rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
                         <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
-                        ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color};">${escapeHtml(game.occasion)}</span>` : ''}
+                        ${marginSign ? `<span class="margin-indicator">${marginSign}${Math.abs(margin)}</span>` : ''}
                     </div>
+                    ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color};">${escapeHtml(game.occasion)}</span>` : ''}
                 `;
                 gameCard.addEventListener('click', () => navigateTo('gameDetail', game.id));
                 container.appendChild(gameCard);
@@ -1249,32 +1290,30 @@
                 return;
             }
 
+            const margin = game.homeScore - game.awayScore;
+            const marginSign = game.result === 'W' ? '+' : game.result === 'L' ? '-' : '';
+
             const card = document.createElement('div');
             card.className = 'card';
-            // Header with score inline
             card.innerHTML = `
-                <h2>
-                    ${escapeHtml(game.homeTeam)} vs ${escapeHtml(game.awayTeam)}
-                    <span style="font-size:1.2em; font-weight:bold;">${game.homeScore} - ${game.awayScore}</span>
-                </h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                    <h2 style="margin-bottom:0;">
+                        ${escapeHtml(game.homeTeam)} vs ${escapeHtml(game.awayTeam)}
+                        <span style="font-size:1.2em; font-weight:bold;">${game.homeScore} - ${game.awayScore}</span>
+                    </h2>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
+                        ${marginSign ? `<span class="margin-indicator">${marginSign}${Math.abs(margin)}</span>` : ''}
+                    </div>
+                </div>
                 <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                 ${game.occasion ? `<div style="margin-top:0.5rem;"><span class="game-occasion" style="background-color: ${getOccasionStyle(game.occasion).bg}; color: ${getOccasionStyle(game.occasion).color};">${escapeHtml(game.occasion)}</span></div>` : ''}
+                ${game.coach ? `<div style="margin-top:0.5rem;"><strong>Head Coach:</strong> ${escapeHtml(game.coach)}</div>` : ''}
                 <div style="margin-top:0.5rem;">
                     <strong>Man of the Match:</strong> ${game.manOfTheMatch ? escapeHtml(getPlayerName(game.manOfTheMatch)) : 'Not selected'}
                 </div>
                 <div class="game-photo-gallery" id="gamePhotoGallery">
                     ${(game.photos || []).map(photo => `<img src="${photo}" alt="Game Photo">`).join('')}
-                </div>
-                <div style="margin-top:1.5rem;">
-                    <h3>Game Photos</h3>
-                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                        <button class="secondary" id="uploadGamePhotoBtn">Upload Photo from PC</button>
-                        <input type="file" id="gamePhotoFileInput" accept="image/*" style="display:none;" multiple>
-                        <button class="secondary" id="photoUrlBtn">Use Image URL</button>
-                        <input type="url" id="gamePhotoUrl" placeholder="https://example.com/image.jpg" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
-                        <button class="secondary" id="setPhotoUrlBtn">Add URL Photo</button>
-                    </div>
-                    <small>Max 6 photos.</small>
                 </div>
                 <h3 style="margin-top:1.5rem;">Players & Points</h3>
                 <div id="gamePlayers"></div>
@@ -1286,60 +1325,10 @@
             `;
             container.appendChild(card);
 
-            const photos = game.photos || [];
+            // Render gallery without controls
             const gallery = card.querySelector('#gamePhotoGallery');
+            // Photos already rendered in innerHTML
 
-            // Render gallery without click-to-remove
-            function renderGallery() {
-                gallery.innerHTML = photos.map(photo => `<img src="${photo}" alt="Game Photo">`).join('');
-            }
-            renderGallery();
-
-            // Upload multiple photos from PC
-            const uploadBtn = card.querySelector('#uploadGamePhotoBtn');
-            const fileInput = card.querySelector('#gamePhotoFileInput');
-            if (uploadBtn && fileInput) {
-                uploadBtn.addEventListener('click', () => fileInput.click());
-                fileInput.addEventListener('change', (e) => {
-                    const files = Array.from(e.target.files);
-                    if (files.length + photos.length > 6) {
-                        alert('Maximum 6 photos allowed.');
-                        return;
-                    }
-                    files.forEach(file => {
-                        const reader = new FileReader();
-                        reader.onload = function(ev) {
-                            photos.push(ev.target.result);
-                            game.photos = photos;
-                            saveData(appState.data);
-                            renderGallery();
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                    fileInput.value = '';
-                });
-            }
-
-            // Add photo from URL
-            const setUrlBtn = card.querySelector('#setPhotoUrlBtn');
-            const urlInput = card.querySelector('#gamePhotoUrl');
-            if (setUrlBtn && urlInput) {
-                setUrlBtn.addEventListener('click', () => {
-                    const url = urlInput.value.trim();
-                    if (!url) return;
-                    if (photos.length >= 6) {
-                        alert('Maximum 6 photos allowed.');
-                        return;
-                    }
-                    photos.push(url);
-                    game.photos = photos;
-                    saveData(appState.data);
-                    renderGallery();
-                    urlInput.value = '';
-                });
-            }
-
-            // Edit game button
             const editBtn = card.querySelector('#editGameBtn');
             if (editBtn) {
                 editBtn.addEventListener('click', () => {
@@ -1359,8 +1348,12 @@
                         const playerItem = document.createElement('div');
                         playerItem.className = 'list-item';
                         const isMotm = game.manOfTheMatch === stat.playerId;
+                        const avatarHtml = player.photo
+                            ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}">`
+                            : escapeHtml(player.name.charAt(0).toUpperCase());
                         playerItem.innerHTML = `
                             <div class="item-info" style="display:flex; align-items:center;">
+                                <div class="player-list-avatar">${avatarHtml}</div>
                                 <div class="item-title">${escapeHtml(player.name)}</div>
                                 ${isMotm ? '<span class="badge nt" style="margin-left:0.5rem;">MOTM</span>' : ''}
                             </div>
@@ -1371,6 +1364,65 @@
                     }
                 });
             }
+        }
+
+        // -------- COACHES VIEW --------
+        function renderCoaches(container) {
+            const games = appState.data.games;
+            const coachMap = new Map();
+
+            games.forEach(game => {
+                if (game.coach && game.coach.trim()) {
+                    const coach = game.coach.trim();
+                    if (!coachMap.has(coach)) {
+                        coachMap.set(coach, { wins: 0, losses: 0, games: [] });
+                    }
+                    const record = coachMap.get(coach);
+                    if (game.result === 'W') record.wins++;
+                    else if (game.result === 'L') record.losses++;
+                    record.games.push(game);
+                }
+            });
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <h2>👔 Coaches</h2>
+                <p>Head coaches and their records based on games.</p>
+                <div id="coachesList" style="margin-top:1rem;"></div>
+            `;
+            container.appendChild(card);
+
+            const list = card.querySelector('#coachesList');
+            if (coachMap.size === 0) {
+                list.innerHTML = '<p>No coaches found. Add a coach to a game first.</p>';
+                return;
+            }
+
+            const sortedCoaches = [...coachMap.entries()].sort((a,b) => {
+                const totalA = a[1].wins + a[1].losses;
+                const totalB = b[1].wins + b[1].losses;
+                if (totalB !== totalA) return totalB - totalA;
+                return a[0].localeCompare(b[0]);
+            });
+
+            sortedCoaches.forEach(([coachName, record]) => {
+                const total = record.wins + record.losses;
+                const coachItem = document.createElement('div');
+                coachItem.className = 'list-item';
+                coachItem.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-title">${escapeHtml(coachName)}</div>
+                    </div>
+                    <div>
+                        <span class="badge">${record.wins}W - ${record.losses}L</span>
+                        <span class="badge nt">${total} Games</span>
+                    </div>
+                `;
+                // Click to show games coached? maybe not required, but we can make it clickable to filter games? For now just display.
+                coachItem.style.cursor = 'default';
+                list.appendChild(coachItem);
+            });
         }
 
         // -------- FORUM VIEW --------
@@ -1473,9 +1525,8 @@
                 clubs = editingPlayer.previousClubs.map(club => ({ ...club }));
             }
 
-            // Variable to hold the photo data URL
             let photoDataUrl = null;
-            let photoProcessingPromise = null;   // track pending compression
+            let photoProcessingPromise = null;
 
             const card = document.createElement('div');
             card.className = 'card';
@@ -1525,23 +1576,18 @@
             `;
             container.appendChild(card);
 
-            // Get references after DOM insertion
             const form = card.querySelector('#addPlayerForm');
             const clubsContainer = card.querySelector('#clubsContainer');
             const addClubBtn = card.querySelector('#addClubBtn');
             const photoInput = card.querySelector('#playerPhoto');
 
-            // Attach submit handler IMMEDIATELY and before any other potential errors
             if (form) {
                 form.addEventListener('submit', async function(e) {
                     e.preventDefault();
-
                     try {
-                        // Wait for any ongoing photo compression to finish
                         if (photoProcessingPromise) {
                             await photoProcessingPromise;
                         }
-
                         const name = form.querySelector('#playerName').value.trim();
                         const position = form.querySelector('#playerPosition').value.trim();
                         const number = form.querySelector('#playerNumber').value.trim();
@@ -1555,7 +1601,6 @@
                         }
 
                         const filteredClubs = clubs.filter(club => club.name.trim() !== '');
-
                         const playerData = {
                             name,
                             position,
@@ -1582,7 +1627,6 @@
                 });
             }
 
-            // Now attach other listeners if elements exist
             if (clubsContainer) {
                 function renderClubInputs() {
                     clubsContainer.innerHTML = '';
@@ -1593,11 +1637,11 @@
                         row.style.gap = '0.5rem';
                         row.style.marginBottom = '0.5rem';
                         row.innerHTML = `
-                            <input type="text" class="club-name" placeholder="Club name" value="${escapeHtml(club.name)}" style="flex:1;">
+                            <input type="text" class="club-name-input" placeholder="Club name" value="${escapeHtml(club.name)}">
                             <input type="color" class="club-color" value="${club.color || '#1f2937'}">
                             <button type="button" class="remove-club danger" style="padding:0.3rem 0.6rem;">X</button>
                         `;
-                        row.querySelector('.club-name').addEventListener('input', (e) => {
+                        row.querySelector('.club-name-input').addEventListener('input', (e) => {
                             clubs[index].name = e.target.value;
                         });
                         row.querySelector('.club-color').addEventListener('input', (e) => {
@@ -1626,7 +1670,6 @@
                 photoInput.addEventListener('change', function(e) {
                     const file = e.target.files[0];
                     if (file) {
-                        // Optional: warn if file is very large
                         if (file.size > 2 * 1024 * 1024) {
                             alert('Large image detected. Compressing…');
                         }
@@ -1674,6 +1717,15 @@
             const editingGame = editingGameId ? getGameById(editingGameId) : null;
             const isEditing = !!editingGame;
 
+            // Temporary photos array for form management
+            let tempPhotos = [];
+            if (isEditing && Array.isArray(editingGame.photos)) {
+                tempPhotos = [...editingGame.photos];
+            }
+
+            // Unique coaches for datalist
+            const existingCoaches = [...new Set(appState.data.games.map(g => g.coach).filter(Boolean))];
+
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -1709,9 +1761,26 @@
                             <input type="number" id="awayScore" min="0" value="${isEditing ? editingGame.awayScore : 0}">
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="occasion">Occasion (e.g., FIBA Qualifier, Friendly, Eurobasket)</label>
+                            <input type="text" id="occasion" placeholder="e.g., Friendly" value="${isEditing ? escapeHtml(editingGame.occasion) : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="coach">Head Coach *</label>
+                            <input type="text" id="coach" list="coachList" required placeholder="e.g., Svetislav Pešić" value="${isEditing ? escapeHtml(editingGame.coach) : ''}">
+                            <datalist id="coachList">
+                                ${existingCoaches.map(c => `<option value="${escapeHtml(c)}">`).join('')}
+                            </datalist>
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label for="occasion">Occasion (e.g., FIBA Qualifier, Friendly, Eurobasket)</label>
-                        <input type="text" id="occasion" placeholder="e.g., Friendly" value="${isEditing ? escapeHtml(editingGame.occasion) : ''}">
+                        <label for="result">Result (W/L)</label>
+                        <select id="result">
+                            <option value="">None</option>
+                            <option value="W" ${isEditing && editingGame.result === 'W' ? 'selected' : ''}>Win (W)</option>
+                            <option value="L" ${isEditing && editingGame.result === 'L' ? 'selected' : ''}>Loss (L)</option>
+                        </select>
                     </div>
 
                     <h3>Players & Points</h3>
@@ -1725,6 +1794,25 @@
                     </div>
                     <button type="button" class="secondary" id="addPlayerRowBtn">+ Add Player Row</button>
 
+                    <h3 style="margin-top:1.5rem;">Game Photos</h3>
+                    <div id="gamePhotosContainer">
+                        <div id="gamePhotosGallery" class="game-photo-gallery">
+                            ${tempPhotos.map((photo, idx) => `
+                                <div style="position:relative; display:inline-block;">
+                                    <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover;">
+                                    <button type="button" class="remove-photo danger" data-index="${idx}" style="position:absolute; top:5px; right:5px; border-radius:50%; width:24px; height:24px; padding:0; line-height:1;">×</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
+                            <button type="button" class="secondary" id="uploadGamePhotoBtn">Upload Photo from PC</button>
+                            <input type="file" id="gamePhotoFileInput" accept="image/*" style="display:none;" multiple>
+                            <input type="url" id="gamePhotoUrl" placeholder="https://example.com/image.jpg" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
+                            <button type="button" class="secondary" id="setPhotoUrlBtn">Add URL Photo</button>
+                        </div>
+                        <small>Max 6 photos.</small>
+                    </div>
+
                     <div class="form-actions" style="margin-top:1.5rem;">
                         <button type="submit">${isEditing ? 'Update Game' : 'Add Game'}</button>
                         <button type="button" class="secondary" onclick="navigateTo('games')">Cancel</button>
@@ -1736,7 +1824,13 @@
             const rowsContainer = card.querySelector('#playerRowsContainer');
             const motmSelect = card.querySelector('#motmSelect');
             const addPlayerRowBtn = card.querySelector('#addPlayerRowBtn');
+            const gamePhotosGallery = card.querySelector('#gamePhotosGallery');
+            const uploadPhotoBtn = card.querySelector('#uploadGamePhotoBtn');
+            const fileInput = card.querySelector('#gamePhotoFileInput');
+            const photoUrlInput = card.querySelector('#gamePhotoUrl');
+            const setPhotoUrlBtn = card.querySelector('#setPhotoUrlBtn');
 
+            // Initialize player rows
             if (isEditing && editingGame.playerStats) {
                 editingGame.playerStats.forEach(stat => {
                     const player = getPlayerById(stat.playerId);
@@ -1791,10 +1885,6 @@
                 }
             }
 
-            if (!isEditing) {
-                addPlayerRow();
-            }
-
             rowsContainer.addEventListener('input', updateMotmOptions);
             addPlayerRowBtn.addEventListener('click', addPlayerRow);
 
@@ -1807,6 +1897,57 @@
                 }
             }
 
+            // Photo management
+            function renderPhotos() {
+                gamePhotosGallery.innerHTML = tempPhotos.map((photo, idx) => `
+                    <div style="position:relative; display:inline-block;">
+                        <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover;">
+                        <button type="button" class="remove-photo danger" data-index="${idx}" style="position:absolute; top:5px; right:5px; border-radius:50%; width:24px; height:24px; padding:0; line-height:1;">×</button>
+                    </div>
+                `).join('');
+                // Attach remove events
+                gamePhotosGallery.querySelectorAll('.remove-photo').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const idx = parseInt(e.target.dataset.index);
+                        tempPhotos.splice(idx, 1);
+                        renderPhotos();
+                    });
+                });
+            }
+            renderPhotos();
+
+            uploadPhotoBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length + tempPhotos.length > 6) {
+                    alert('Maximum 6 photos allowed.');
+                    return;
+                }
+                files.forEach(file => {
+                    compressImage(file, 800, 800, 0.8).then(dataUrl => {
+                        tempPhotos.push(dataUrl);
+                        renderPhotos();
+                    }).catch(err => {
+                        console.error('Photo compression failed', err);
+                        alert('Failed to process image. Please try a different file.');
+                    });
+                });
+                fileInput.value = '';
+            });
+
+            setPhotoUrlBtn.addEventListener('click', () => {
+                const url = photoUrlInput.value.trim();
+                if (!url) return;
+                if (tempPhotos.length >= 6) {
+                    alert('Maximum 6 photos allowed.');
+                    return;
+                }
+                tempPhotos.push(url);
+                renderPhotos();
+                photoUrlInput.value = '';
+            });
+
+            // Form submission
             card.querySelector('#addGameForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const date = card.querySelector('#gameDate').value;
@@ -1816,13 +1957,18 @@
                 const homeScore = parseInt(card.querySelector('#homeScore').value) || 0;
                 const awayScore = parseInt(card.querySelector('#awayScore').value) || 0;
                 const occasion = card.querySelector('#occasion').value.trim();
+                const coach = card.querySelector('#coach').value.trim();
+                const result = card.querySelector('#result').value;
                 const motmName = motmSelect.value;
 
                 if (!date || !venue || !homeTeam || !awayTeam) {
                     alert('Date, Venue, Home Team, and Away Team are required.');
                     return;
                 }
-
+                if (!coach) {
+                    alert('Head Coach is required.');
+                    return;
+                }
                 if (!motmName) {
                     alert('Please select Man of the Match.');
                     return;
@@ -1845,14 +1991,14 @@
                 }
 
                 if (isEditing) {
-                    updateGame(editingGame, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName);
+                    updateGame(editingGame, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, tempPhotos);
                 } else {
-                    addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName);
+                    addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, tempPhotos);
                 }
             });
         }
 
-        function updateGame(game, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
+        function updateGame(game, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, photos) {
             game.date = date;
             game.venue = venue;
             game.homeTeam = homeTeam;
@@ -1860,9 +2006,11 @@
             game.homeScore = homeScore;
             game.awayScore = awayScore;
             game.occasion = occasion;
+            game.coach = coach;
+            game.result = result;
+            game.photos = photos;
 
             const newPlayerStats = [];
-
             playersData.forEach(pData => {
                 let player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
                 if (!player) {
@@ -1888,7 +2036,6 @@
                 }
                 newPlayerStats.push({ playerId: player.id, points: pData.points });
             });
-
             game.playerStats = newPlayerStats;
 
             if (motmName) {
@@ -1902,7 +2049,7 @@
             navigateTo('gameDetail', game.id);
         }
 
-        function addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, playersData, motmName) {
+        function addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, photos) {
             const playerStats = [];
             playersData.forEach(pData => {
                 const existingPlayer = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
@@ -1948,7 +2095,9 @@
                 homeScore: homeScore,
                 awayScore: awayScore,
                 occasion: occasion || '',
-                photos: [],
+                coach: coach,
+                result: result,
+                photos: photos,
                 playerStats: playerStats,
                 manOfTheMatch: motmPlayerId,
                 createdAt: new Date().toISOString()
