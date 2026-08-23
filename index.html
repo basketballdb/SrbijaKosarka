@@ -1486,97 +1486,106 @@
             `;
             container.appendChild(card);
 
+            // Get references after DOM insertion
+            const form = card.querySelector('#addPlayerForm');
             const clubsContainer = card.querySelector('#clubsContainer');
             const addClubBtn = card.querySelector('#addClubBtn');
             const photoInput = card.querySelector('#playerPhoto');
 
-            function renderClubInputs() {
-                clubsContainer.innerHTML = '';
-                clubs.forEach((club, index) => {
-                    const row = document.createElement('div');
-                    row.style.display = 'flex';
-                    row.style.alignItems = 'center';
-                    row.style.gap = '0.5rem';
-                    row.style.marginBottom = '0.5rem';
-                    row.innerHTML = `
-                        <input type="text" class="club-name" placeholder="Club name" value="${escapeHtml(club.name)}" style="flex:1;">
-                        <input type="color" class="club-color" value="${club.color || '#1f2937'}">
-                        <button type="button" class="remove-club danger" style="padding:0.3rem 0.6rem;">X</button>
-                    `;
-                    row.querySelector('.club-name').addEventListener('input', (e) => {
-                        clubs[index].name = e.target.value;
-                    });
-                    row.querySelector('.club-color').addEventListener('input', (e) => {
-                        clubs[index].color = e.target.value;
-                    });
-                    row.querySelector('.remove-club').addEventListener('click', () => {
-                        clubs.splice(index, 1);
-                        renderClubInputs();
-                    });
-                    clubsContainer.appendChild(row);
+            // Attach submit handler IMMEDIATELY and before any other potential errors
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = form.querySelector('#playerName').value.trim();
+                    const position = form.querySelector('#playerPosition').value.trim();
+                    const number = form.querySelector('#playerNumber').value.trim();
+                    const dob = form.querySelector('#playerDob').value;
+                    const city = form.querySelector('#playerCity').value.trim();
+                    const ntDebut = form.querySelector('#playerNtDebut').value;
+
+                    if (!name) {
+                        alert('Player name is required.');
+                        return;
+                    }
+
+                    const filteredClubs = clubs.filter(club => club.name.trim() !== '');
+
+                    const playerData = {
+                        name,
+                        position,
+                        number: number ? parseInt(number) : null,
+                        dob: dob || '',
+                        cityOfBirth: city,
+                        previousClubs: filteredClubs,
+                        ntDebutDate: ntDebut || ''
+                    };
+
+                    if (isEditing) {
+                        Object.assign(editingPlayer, playerData);
+                        if (photoDataUrl) editingPlayer.photo = photoDataUrl;
+                        saveData(appState.data);
+                        appState.editingPlayerId = null;
+                        navigateTo('playerDetail', editingPlayer.id);
+                    } else {
+                        addNewPlayer(playerData, photoDataUrl);
+                    }
                 });
             }
 
-            function addClub() {
-                clubs.push({ name: '', color: '#1f2937' });
+            // Now attach other listeners if elements exist
+            if (clubsContainer) {
+                function renderClubInputs() {
+                    clubsContainer.innerHTML = '';
+                    clubs.forEach((club, index) => {
+                        const row = document.createElement('div');
+                        row.style.display = 'flex';
+                        row.style.alignItems = 'center';
+                        row.style.gap = '0.5rem';
+                        row.style.marginBottom = '0.5rem';
+                        row.innerHTML = `
+                            <input type="text" class="club-name" placeholder="Club name" value="${escapeHtml(club.name)}" style="flex:1;">
+                            <input type="color" class="club-color" value="${club.color || '#1f2937'}">
+                            <button type="button" class="remove-club danger" style="padding:0.3rem 0.6rem;">X</button>
+                        `;
+                        row.querySelector('.club-name').addEventListener('input', (e) => {
+                            clubs[index].name = e.target.value;
+                        });
+                        row.querySelector('.club-color').addEventListener('input', (e) => {
+                            clubs[index].color = e.target.value;
+                        });
+                        row.querySelector('.remove-club').addEventListener('click', () => {
+                            clubs.splice(index, 1);
+                            renderClubInputs();
+                        });
+                        clubsContainer.appendChild(row);
+                    });
+                }
+
+                function addClub() {
+                    clubs.push({ name: '', color: '#1f2937' });
+                    renderClubInputs();
+                }
+
+                if (addClubBtn) {
+                    addClubBtn.addEventListener('click', addClub);
+                }
                 renderClubInputs();
             }
 
-            addClubBtn.addEventListener('click', addClub);
-            renderClubInputs();
-
-            // Photo input change handler: read file immediately
-            photoInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        photoDataUrl = ev.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    photoDataUrl = null;
-                }
-            });
-
-            const form = card.querySelector('#addPlayerForm');
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const name = card.querySelector('#playerName').value.trim();
-                const position = card.querySelector('#playerPosition').value.trim();
-                const number = card.querySelector('#playerNumber').value.trim();
-                const dob = card.querySelector('#playerDob').value;
-                const city = card.querySelector('#playerCity').value.trim();
-                const ntDebut = card.querySelector('#playerNtDebut').value;
-
-                if (!name) {
-                    alert('Player name is required.');
-                    return;
-                }
-
-                const filteredClubs = clubs.filter(club => club.name.trim() !== '');
-
-                const playerData = {
-                    name,
-                    position,
-                    number: number ? parseInt(number) : null,
-                    dob: dob || '',
-                    cityOfBirth: city,
-                    previousClubs: filteredClubs,
-                    ntDebutDate: ntDebut || ''
-                };
-
-                // Use photoDataUrl if available
-                if (isEditing) {
-                    Object.assign(editingPlayer, playerData);
-                    if (photoDataUrl) editingPlayer.photo = photoDataUrl;
-                    saveData(appState.data);
-                    appState.editingPlayerId = null;
-                    navigateTo('playerDetail', editingPlayer.id);
-                } else {
-                    addNewPlayer(playerData, photoDataUrl);
-                }
-            });
+            if (photoInput) {
+                photoInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            photoDataUrl = ev.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        photoDataUrl = null;
+                    }
+                });
+            }
         }
 
         function addNewPlayer(playerData, photoDataUrl) {
@@ -1794,7 +1803,6 @@
 
             const newPlayerStats = [];
 
-            // Create/update players and build stats
             playersData.forEach(pData => {
                 let player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
                 if (!player) {
@@ -1829,7 +1837,7 @@
             }
 
             saveData(appState.data);
-            recalculateAppearances(); // Recalculate after update
+            recalculateAppearances();
             appState.editingGameId = null;
             navigateTo('gameDetail', game.id);
         }
@@ -1887,7 +1895,7 @@
             };
             appState.data.games.push(newGame);
             saveData(appState.data);
-            recalculateAppearances(); // Recalculate after adding
+            recalculateAppearances();
             navigateTo('gameDetail', gameId);
         }
 
@@ -1987,7 +1995,7 @@
                 }
             });
             saveData(appState.data);
-            recalculateAppearances(); // Update appearances after removal
+            recalculateAppearances();
             navigateTo('players');
         }
 
@@ -1995,7 +2003,7 @@
             if (!confirm('Are you sure you want to delete this game? Player appearances will be adjusted.')) return;
             appState.data.games = appState.data.games.filter(g => g.id !== gameId);
             saveData(appState.data);
-            recalculateAppearances(); // Recalculate after deletion
+            recalculateAppearances();
             navigateTo('games');
         }
 
@@ -2027,7 +2035,6 @@
         function initApp() {
             appState.currentView = 'dashboard';
             appState.data = loadData();
-            // Fix any existing appearance count inconsistencies
             recalculateAppearances();
             if (!localStorage.getItem(STORAGE_KEY)) {
                 saveData(appState.data);
