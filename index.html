@@ -1438,6 +1438,7 @@
 
                     if (isMotm) gameDiv.classList.add('motm-highlight');
 
+                    // NOTE: The MOTM badge has been completely removed from the game row.
                     gameDiv.innerHTML = `
                         <div class="game-left">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
@@ -1450,7 +1451,6 @@
                         <div class="game-right">
                             ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color}; font-size:0.7rem; padding:0.1rem 0.4rem;">${escapeHtml(game.occasion)}</span>` : ''}
                             <span class="badge" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${points}</span>
-                            ${isMotm ? '<span class="badge nt" style="font-size:0.7rem; padding:0.1rem 0.4rem; background-color: #dc2626;">MOTM</span>' : ''}
                         </div>
                     `;
                     gameDiv.addEventListener('click', () => navigateToGameFromPlayer(game.id, player.id));
