@@ -580,8 +580,9 @@
         }
 
         .game-card.motm-highlight {
-            background-color: #fef2f2;
-            border-left: 4px solid var(--serbian-red);
+            background-color: #fee2e2;
+            border-left: 5px solid #dc2626;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
         }
 
         .game-card.training-game {
@@ -657,7 +658,7 @@
         }
 
         .training-badge {
-            background-color: #94a3b8;
+            background-color: #64748b;
             color: white;
             padding: 0.15rem 0.5rem;
             border-radius: 12px;
@@ -1104,6 +1105,7 @@
 
         function getPlayerGames(playerId) {
             return appState.data.games.filter(game => {
+                if (game.isTraining) return false; // exclude training games
                 if (game.playerStats) {
                     return game.playerStats.some(stat => stat.playerId === playerId);
                 }
@@ -1112,7 +1114,7 @@
         }
 
         function getPlayerCompetitiveGames(playerId) {
-            return getPlayerGames(playerId).filter(game => !game.isTraining);
+            return getPlayerGames(playerId);
         }
 
         function getPlayerMotmCount(playerId) {
@@ -1221,7 +1223,6 @@
             const competitiveGames = games.filter(g => !g.isTraining);
             const totalPlayers = players.length;
             const totalGames = competitiveGames.length;
-            const trainingGamesCount = games.length - competitiveGames.length;
 
             const card = document.createElement('div');
             card.className = 'card';
@@ -1231,7 +1232,6 @@
                 <div class="stats-container" style="margin-top:1.5rem;">
                     <div class="stat-box"><div class="stat-number">${totalPlayers}</div><div class="stat-label">Players</div></div>
                     <div class="stat-box"><div class="stat-number">${totalGames}</div><div class="stat-label">Competitive Games</div></div>
-                    ${trainingGamesCount > 0 ? `<div class="stat-box"><div class="stat-number">${trainingGamesCount}</div><div class="stat-label">🔒 Training</div></div>` : ''}
                 </div>
                 <div style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
                     <button class="secondary" onclick="navigateTo('players')">View Players</button>
@@ -1255,7 +1255,7 @@
                     gameDiv.innerHTML = `
                         <div class="game-left">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
-                            ${game.isTraining ? '<span class="training-badge">🔒 Trening</span>' : ''}
+                            ${game.isTraining ? '<span class="training-badge">🔒 Zatvorena Utakmica</span>' : ''}
                             <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                         </div>
                         <div class="game-middle">
@@ -1373,7 +1373,7 @@
             if (!player) { container.innerHTML = '<div class="card"><p>Player not found.</p></div>'; return; }
 
             const appearances = getPlayerAppearances(playerId);
-            const playerGames = getPlayerGames(playerId);
+            const playerGames = getPlayerGames(playerId); // already excludes training
             const totalPoints = getPlayerTotalPoints(playerId);
             const motmCount = getPlayerMotmCount(playerId);
             const avatarHtml = player.photo
@@ -1419,7 +1419,7 @@
 
             const gamesContainer = card.querySelector('#playerGamesList');
             if (playerGames.length === 0) {
-                gamesContainer.innerHTML = '<p>No games recorded for this player.</p>';
+                gamesContainer.innerHTML = '<p>No competitive games recorded for this player.</p>';
             } else {
                 playerGames.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(game => {
                     const gameDiv = document.createElement('div');
@@ -1433,18 +1433,16 @@
                         const stat = game.playerStats.find(s => s.playerId === playerId);
                         if (stat) points = stat.points || 0;
                     }
-                    const isMotm = game.manOfTheMatch === playerId && !game.isTraining;
+                    const isMotm = game.manOfTheMatch === playerId;
                     const occasionStyle = getOccasionStyle(game.occasion);
 
                     if (isMotm) gameDiv.classList.add('motm-highlight');
-                    if (game.isTraining) gameDiv.classList.add('training-game');
 
                     gameDiv.innerHTML = `
                         <div class="game-left">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
                             <span class="thread-meta" style="margin-left:0.5rem;">${formatDate(game.date)}</span>
                             ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
-                            ${game.isTraining ? '<span class="training-badge">🔒 Trening</span>' : ''}
                         </div>
                         <div class="game-middle">
                             <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
@@ -1452,6 +1450,7 @@
                         <div class="game-right">
                             ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color}; font-size:0.7rem; padding:0.1rem 0.4rem;">${escapeHtml(game.occasion)}</span>` : ''}
                             <span class="badge" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${points}</span>
+                            ${isMotm ? '<span class="badge nt" style="font-size:0.7rem; padding:0.1rem 0.4rem; background-color: #dc2626;">MOTM</span>' : ''}
                         </div>
                     `;
                     gameDiv.addEventListener('click', () => navigateToGameFromPlayer(game.id, player.id));
@@ -1542,7 +1541,7 @@
                 gameCard.innerHTML = `
                     <div class="game-left">
                         <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
-                        ${game.isTraining ? '<span class="training-badge">🔒 Trening</span>' : ''}
+                        ${game.isTraining ? '<span class="training-badge">🔒 Zatvorena Utakmica</span>' : ''}
                         <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                     </div>
                     <div class="game-middle">
@@ -1576,7 +1575,7 @@
                     <h2 style="margin-bottom:0;">
                         ${escapeHtml(game.homeTeam)} vs ${escapeHtml(game.awayTeam)}
                         <span style="font-size:1.2em; font-weight:800;">${game.homeScore} - ${game.awayScore}</span>
-                        ${game.isTraining ? '<span class="training-badge" style="margin-left:0.8rem; font-size:0.8rem;">🔒 Trening</span>' : ''}
+                        ${game.isTraining ? '<span class="training-badge" style="margin-left:0.8rem; font-size:0.8rem;">🔒 Zatvorena Utakmica</span>' : ''}
                     </h2>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
                         ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
@@ -1900,18 +1899,20 @@
                     <div class="form-group">
                         <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer;">
                             <input type="checkbox" id="isTrainingGame" ${isEditing && editingGame.isTraining ? 'checked' : ''} style="width:auto;">
-                            🔒 Iza zatvorenih vrata (Trening – ne računa se u statistiku)
+                            🔒 Zatvorena Utakmica (ne računa se u statistiku)
                         </label>
                     </div>
 
-                    <h3>Players & Points</h3>
-                    <p>Type player name (existing or new), optional position, and points scored.</p>
-                    <div id="playerRowsContainer"></div>
-                    <div class="form-group" style="margin-top:1rem;">
-                        <label for="motmSelect">Man of the Match *</label>
-                        <select id="motmSelect" required><option value="">Select player...</option></select>
+                    <div id="playerSection">
+                        <h3>Players & Points</h3>
+                        <p>Type player name (existing or new), optional position, and points scored.</p>
+                        <div id="playerRowsContainer"></div>
+                        <div class="form-group" style="margin-top:1rem;">
+                            <label for="motmSelect">Man of the Match</label>
+                            <select id="motmSelect"><option value="">Select player...</option></select>
+                        </div>
+                        <button type="button" class="secondary" id="addPlayerRowBtn">+ Add Player Row</button>
                     </div>
-                    <button type="button" class="secondary" id="addPlayerRowBtn">+ Add Player Row</button>
 
                     <h3 style="margin-top:1.5rem;">Game Photos</h3>
                     <div id="gamePhotosContainer">
@@ -1944,13 +1945,29 @@
             const fileInput = card.querySelector('#gamePhotoFileInput');
             const photoUrlInput = card.querySelector('#gamePhotoUrl');
             const setPhotoUrlBtn = card.querySelector('#setPhotoUrlBtn');
+            const isTrainingCheckbox = card.querySelector('#isTrainingGame');
+            const playerSection = card.querySelector('#playerSection');
+
+            function toggleTrainingMode() {
+                const isTraining = isTrainingCheckbox.checked;
+                if (isTraining) {
+                    playerSection.style.display = 'none';
+                    motmSelect.removeAttribute('required');
+                } else {
+                    playerSection.style.display = 'block';
+                }
+            }
+            isTrainingCheckbox.addEventListener('change', toggleTrainingMode);
+            toggleTrainingMode();
 
             if (isEditing && editingGame.playerStats) {
                 editingGame.playerStats.forEach(stat => {
                     const player = getPlayerById(stat.playerId);
                     if (player) addPlayerRowWithData(player.name, player.position, stat.points);
                 });
-            } else { addPlayerRow(); }
+            } else if (!isTrainingCheckbox.checked) {
+                addPlayerRow();
+            }
 
             function addPlayerRowWithData(name = '', position = '', points = 0) {
                 const row = document.createElement('div');
@@ -2024,22 +2041,24 @@
                 const occasion = card.querySelector('#occasion').value.trim();
                 const coach = card.querySelector('#coach').value.trim();
                 const result = card.querySelector('#result').value;
-                const isTraining = card.querySelector('#isTrainingGame').checked;
+                const isTraining = isTrainingCheckbox.checked;
                 const motmName = motmSelect.value;
 
                 if (!date || !venue || !homeTeam || !awayTeam) { alert('Date, Venue, Home Team, and Away Team are required.'); return; }
                 if (!coach) { alert('Head Coach is required.'); return; }
-                if (!motmName) { alert('Please select Man of the Match.'); return; }
 
-                const playerRows = rowsContainer.querySelectorAll('.player-row');
-                const playersData = [];
-                playerRows.forEach(row => {
-                    const name = row.querySelector('.player-name-input').value.trim();
-                    const position = row.querySelector('.player-position-input').value.trim();
-                    const points = parseInt(row.querySelector('.player-points-input').value) || 0;
-                    if (name) playersData.push({ name, position, points });
-                });
-                if (playersData.length === 0) { alert('At least one player is required.'); return; }
+                let playersData = [];
+                if (!isTraining) {
+                    if (!motmName) { alert('Please select Man of the Match.'); return; }
+                    const playerRows = rowsContainer.querySelectorAll('.player-row');
+                    playerRows.forEach(row => {
+                        const name = row.querySelector('.player-name-input').value.trim();
+                        const position = row.querySelector('.player-position-input').value.trim();
+                        const points = parseInt(row.querySelector('.player-points-input').value) || 0;
+                        if (name) playersData.push({ name, position, points });
+                    });
+                    if (playersData.length === 0) { alert('At least one player is required.'); return; }
+                }
 
                 if (isEditing) {
                     await updateGame(editingGame, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, tempPhotos, isTraining);
@@ -2055,18 +2074,24 @@
                 game.date = date; game.venue = venue; game.homeTeam = homeTeam; game.awayTeam = awayTeam;
                 game.homeScore = homeScore; game.awayScore = awayScore; game.occasion = occasion; game.coach = coach;
                 game.result = result; game.photos = photos; game.isTraining = isTraining;
-                const newPlayerStats = [];
-                playersData.forEach(pData => {
-                    let player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
-                    if (!player) {
-                        const playerId = generateId('player', appState.data.nextPlayerId);
-                        player = { id: playerId, name: pData.name, position: pData.position || '', number: null, ntAppearances: 0, photo: null, dob: '', cityOfBirth: '', previousClubs: [], ntDebutDate: '', createdAt: new Date().toISOString() };
-                        appState.data.players.push(player);
-                    } else if (pData.position && !player.position) { player.position = pData.position; }
-                    newPlayerStats.push({ playerId: player.id, points: pData.points });
-                });
-                game.playerStats = newPlayerStats;
-                if (motmName) { const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase()); if (motmPlayer) game.manOfTheMatch = motmPlayer.id; }
+
+                if (isTraining) {
+                    game.playerStats = [];
+                    game.manOfTheMatch = null;
+                } else {
+                    const newPlayerStats = [];
+                    playersData.forEach(pData => {
+                        let player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
+                        if (!player) {
+                            const playerId = generateId('player', appState.data.nextPlayerId);
+                            player = { id: playerId, name: pData.name, position: pData.position || '', number: null, ntAppearances: 0, photo: null, dob: '', cityOfBirth: '', previousClubs: [], ntDebutDate: '', createdAt: new Date().toISOString() };
+                            appState.data.players.push(player);
+                        } else if (pData.position && !player.position) { player.position = pData.position; }
+                        newPlayerStats.push({ playerId: player.id, points: pData.points });
+                    });
+                    game.playerStats = newPlayerStats;
+                    if (motmName) { const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase()); if (motmPlayer) game.manOfTheMatch = motmPlayer.id; }
+                }
                 await saveData(appState.data);
                 await recalculateAppearances();
                 appState.editingGameId = null;
@@ -2075,22 +2100,26 @@
         }
 
         async function addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, photos, isTraining) {
-            const playerStats = [];
-            playersData.forEach(pData => {
-                const existingPlayer = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
-                let playerId;
-                if (existingPlayer) {
-                    if (pData.position && !existingPlayer.position) existingPlayer.position = pData.position;
-                    playerId = existingPlayer.id;
-                } else {
-                    playerId = generateId('player', appState.data.nextPlayerId);
-                    const newPlayer = { id: playerId, name: pData.name, position: pData.position || '', number: null, ntAppearances: 0, photo: null, dob: '', cityOfBirth: '', previousClubs: [], ntDebutDate: '', createdAt: new Date().toISOString() };
-                    appState.data.players.push(newPlayer);
-                }
-                playerStats.push({ playerId, points: pData.points });
-            });
+            let playerStats = [];
             let motmPlayerId = null;
-            if (motmName) { const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase()); if (motmPlayer) motmPlayerId = motmPlayer.id; }
+
+            if (!isTraining) {
+                playersData.forEach(pData => {
+                    const existingPlayer = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
+                    let playerId;
+                    if (existingPlayer) {
+                        if (pData.position && !existingPlayer.position) existingPlayer.position = pData.position;
+                        playerId = existingPlayer.id;
+                    } else {
+                        playerId = generateId('player', appState.data.nextPlayerId);
+                        const newPlayer = { id: playerId, name: pData.name, position: pData.position || '', number: null, ntAppearances: 0, photo: null, dob: '', cityOfBirth: '', previousClubs: [], ntDebutDate: '', createdAt: new Date().toISOString() };
+                        appState.data.players.push(newPlayer);
+                    }
+                    playerStats.push({ playerId, points: pData.points });
+                });
+                if (motmName) { const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase()); if (motmPlayer) motmPlayerId = motmPlayer.id; }
+            }
+
             const gameId = generateId('game', appState.data.nextGameId);
             const newGame = { id: gameId, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion: occasion || '', coach, result, photos, playerStats, manOfTheMatch: motmPlayerId, isTraining: isTraining || false, createdAt: new Date().toISOString() };
             appState.data.games.push(newGame);
