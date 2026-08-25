@@ -4,21 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Srpska Košarka</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ============ GLOBAL STYLES ============ */
+        /* ============ SERBIAN FLAG COLOR PALETTE & GLOBAL VARIABLES ============ */
         :root {
-            --bg-color: #f5f7fa;
+            /* Serbian flag colors */
+            --serbian-blue: #0c4076;
+            --serbian-red: #c6363c;
+            --serbian-white: #ffffff;
+
+            /* Refined palette based on Serbian flag */
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --primary: #1e3a8a;
-            --primary-light: #3b82f6;
+            --primary: var(--serbian-blue);
+            --primary-light: #2d6eb0;
+            --primary-lighter: #4a8fd4;
             --secondary: #10b981;
-            --danger: #ef4444;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --border: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0,0,0,0.1);
-            --radius: 8px;
-            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --danger: var(--serbian-red);
+            --danger-hover: #a52a2f;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --text-darker: #0f172a;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --radius: 10px;
+            --radius-sm: 6px;
+            --font: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --transition: 0.2s ease;
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -31,28 +47,149 @@
             font-family: var(--font);
             background-color: var(--bg-color);
             color: var(--text);
-            line-height: 1.6;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-size: 0.95rem;
+        }
+
+        /* ============ TYPOGRAPHY UPGRADE (Requirement 5) ============ */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: 700;
+            color: var(--text-darker);
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* ============ MICRO-INTERACTIONS (Requirement 8) ============ */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+
+        a:hover {
+            color: var(--primary-light);
+        }
+
+        nav ul li a {
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        /* Badge / Pill class with hover lift */
+        .badge-pill,
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: transform var(--transition), background-color var(--transition), box-shadow var(--transition);
+            cursor: default;
+            white-space: nowrap;
+        }
+
+        .badge-pill:hover,
+        .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .badge-pill {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .badge-pill:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* ============ TABLE CSS (Requirement 6) ============ */
+        /* Wrap your table in <div class="table-wrapper"> for scroll & sticky headers */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+            font-size: 0.9rem;
+        }
+
+        .table-wrapper th {
+            position: sticky;
+            top: 0;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 0.78rem;
+            padding: 0.7rem 0.9rem;
+            text-align: left;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .table-wrapper td {
+            padding: 0.7rem 0.9rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .table-wrapper tbody tr:nth-child(even) {
+            background-color: #f1f5f9;
+        }
+
+        .table-wrapper tbody tr:hover {
+            background-color: #e2e8f0;
+            transition: background-color var(--transition);
         }
 
         /* ============ NAVIGATION ============ */
         nav {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--serbian-blue) 0%, #0a2f55 100%);
             color: white;
-            padding: 0.8rem 1.5rem;
+            padding: 0.75rem 1.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(12, 64, 118, 0.3);
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 3px solid var(--serbian-red);
         }
 
         nav .logo {
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 800;
             letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         nav .logo span {
@@ -62,32 +199,36 @@
         nav ul {
             list-style: none;
             display: flex;
-            gap: 1.2rem;
+            gap: 0.6rem;
             flex-wrap: wrap;
         }
 
         nav ul li a {
-            color: white;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            padding: 0.5rem 0.75rem;
-            border-radius: var(--radius);
-            transition: background-color 0.2s;
+            padding: 0.5rem 0.8rem;
+            border-radius: var(--radius-sm);
+            transition: background-color var(--transition), color var(--transition);
             font-weight: 500;
+            font-size: 0.9rem;
         }
 
         nav ul li a:hover {
-            background-color: rgba(255,255,255,0.15);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
         }
 
         nav ul li a.active {
-            background-color: var(--primary-light);
+            background-color: var(--serbian-red);
+            color: white;
+            box-shadow: 0 2px 6px rgba(198, 54, 60, 0.4);
         }
 
         /* ============ MAIN CONTAINER ============ */
         #app {
             max-width: 1200px;
             margin: 2rem auto;
-            padding: 0 1rem;
+            padding: 0 1.2rem;
         }
 
         /* ============ CARDS & SECTIONS ============ */
@@ -97,6 +238,13 @@
             box-shadow: var(--shadow);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--primary);
+            transition: box-shadow var(--transition-smooth);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover);
         }
 
         .card h2 {
@@ -116,6 +264,7 @@
             margin-bottom: 0.35rem;
             font-weight: 600;
             color: var(--text);
+            font-size: 0.9rem;
         }
 
         .form-group input,
@@ -124,10 +273,11 @@
             width: 100%;
             padding: 0.6rem 0.75rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             font-size: 0.95rem;
-            transition: border-color 0.2s;
+            transition: border-color var(--transition), box-shadow var(--transition);
             font-family: inherit;
+            background: #fafbfc;
         }
 
         .form-group input:focus,
@@ -135,7 +285,8 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+            box-shadow: 0 0 0 3px rgba(45, 110, 176, 0.2);
+            background: white;
         }
 
         .form-row {
@@ -148,6 +299,7 @@
             margin-top: 1.5rem;
             display: flex;
             gap: 1rem;
+            flex-wrap: wrap;
         }
 
         button {
@@ -155,15 +307,22 @@
             color: white;
             border: none;
             padding: 0.6rem 1.2rem;
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.95rem;
-            transition: background-color 0.2s;
+            font-size: 0.9rem;
+            transition: background-color var(--transition), transform var(--transition), box-shadow var(--transition);
+            font-family: inherit;
         }
 
         button:hover {
             background-color: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         button.secondary {
@@ -179,31 +338,7 @@
         }
 
         button.danger:hover {
-            background-color: #dc2626;
-        }
-
-        /* ============ TABLES ============ */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        table th,
-        table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        table th {
-            background-color: #f9fafb;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        table tr:hover {
-            background-color: #f3f4f6;
+            background-color: var(--danger-hover);
         }
 
         /* ============ LISTS & ITEMS ============ */
@@ -214,27 +349,31 @@
             padding: 0.75rem 0;
             border-bottom: 1px solid var(--border);
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color var(--transition), padding-left var(--transition);
+            border-radius: var(--radius-sm);
         }
 
         .list-item:hover {
-            background-color: #f9fafb;
+            background-color: #f1f5f9;
+            padding-left: 0.5rem;
         }
 
         .list-item .item-info {
             flex-grow: 1;
             display: flex;
             align-items: center;
+            min-width: 0;
         }
 
         .list-item .item-title {
             font-weight: 600;
             color: var(--primary);
+            font-size: 1rem;
         }
 
         .list-item .item-subtitle {
             color: var(--text-light);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .badge {
@@ -242,17 +381,23 @@
             color: white;
             padding: 0.25rem 0.6rem;
             border-radius: 12px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 600;
             margin-left: 0.5rem;
+            transition: transform var(--transition), background-color var(--transition), box-shadow var(--transition);
+        }
+
+        .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
         .badge.club {
-            background-color: #3b82f6;
+            background-color: var(--primary-light);
         }
 
         .badge.nt {
-            background-color: #f59e0b;
+            background-color: var(--serbian-red);
         }
 
         .badge.occasion {
@@ -274,6 +419,7 @@
             margin-right: 10px;
             flex-shrink: 0;
             font-size: 1rem;
+            border: 2px solid var(--serbian-red);
         }
 
         .player-list-avatar img {
@@ -304,6 +450,7 @@
             font-weight: bold;
             overflow: hidden;
             flex-shrink: 0;
+            border: 3px solid var(--serbian-red);
         }
 
         .player-avatar img {
@@ -315,33 +462,48 @@
 
         .player-name {
             font-size: 2rem;
-            font-weight: bold;
+            font-weight: 800;
+            color: var(--text-darker);
+            letter-spacing: -0.02em;
         }
 
         .stat-box {
-            background-color: #f9fafb;
-            border-radius: var(--radius);
+            background-color: #f1f5f9;
+            border-radius: var(--radius-sm);
             padding: 1rem;
             text-align: center;
             flex: 1;
             min-width: 120px;
+            border: 1px solid var(--border);
+            transition: box-shadow var(--transition), transform var(--transition);
+        }
+
+        .stat-box:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
         }
 
         .stat-box .stat-number {
             font-size: 2rem;
-            font-weight: bold;
+            font-weight: 800;
             color: var(--primary);
         }
 
         .stat-box .stat-label {
             color: var(--text-light);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .stat-box.motm {
             flex: 0 0 120px;
             max-width: 120px;
             min-width: 120px;
+            background-color: #fef2f2;
+            border-color: var(--serbian-red);
+        }
+
+        .stat-box.motm .stat-number {
+            color: var(--serbian-red);
         }
 
         .stats-container {
@@ -354,7 +516,7 @@
         /* ============ MESSAGES ============ */
         .message {
             padding: 1rem;
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             margin-bottom: 1rem;
             font-weight: 500;
         }
@@ -375,18 +537,19 @@
         .thread-list-item {
             padding: 1rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             margin-bottom: 0.75rem;
             cursor: pointer;
-            transition: box-shadow 0.2s;
+            transition: box-shadow var(--transition), border-color var(--transition);
         }
 
         .thread-list-item:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-light);
         }
 
         .thread-title {
-            font-weight: bold;
+            font-weight: 700;
             font-size: 1.1rem;
             color: var(--primary);
         }
@@ -397,11 +560,11 @@
         }
 
         .reply {
-            background-color: #f9fafb;
+            background-color: #f1f5f9;
             border-left: 3px solid var(--primary-light);
             padding: 0.75rem;
             margin-bottom: 0.75rem;
-            border-radius: 0 var(--radius) var(--radius) 0;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
         }
 
         .reply .reply-author {
@@ -421,19 +584,23 @@
             align-items: center;
             padding: 0.75rem 1rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             margin-bottom: 0.75rem;
             cursor: pointer;
-            transition: box-shadow 0.2s;
+            transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+            background: white;
         }
 
         .game-card:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
         }
 
         .game-left {
             flex: 1;
             text-align: left;
+            min-width: 0;
         }
 
         .game-middle {
@@ -449,14 +616,20 @@
         .game-right {
             flex: 1;
             text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.4rem;
+            flex-wrap: wrap;
         }
 
         .game-score {
-            font-weight: bold;
+            font-weight: 800;
             font-size: 1.2rem;
             text-align: center;
             flex: 0 0 80px;
             min-width: 80px;
+            color: var(--text-darker);
         }
 
         .game-type {
@@ -464,6 +637,7 @@
             padding: 0.2rem 0.5rem;
             border-radius: 12px;
             font-weight: 600;
+            transition: transform var(--transition);
         }
 
         .game-type.club {
@@ -478,11 +652,16 @@
 
         .game-occasion {
             font-size: 0.85rem;
-            padding: 0.2rem 0.5rem;
+            padding: 0.2rem 0.6rem;
             border-radius: 12px;
             font-weight: 600;
             background-color: #ede9fe;
             color: #5b21b6;
+            transition: transform var(--transition);
+        }
+
+        .game-occasion:hover {
+            transform: translateY(-1px);
         }
 
         /* ============ GAME PHOTO GALLERY ============ */
@@ -497,8 +676,14 @@
             max-width: 200px;
             max-height: 200px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             border: 1px solid var(--border);
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .game-photo-gallery img:hover {
+            transform: scale(1.03);
+            box-shadow: var(--shadow-hover);
         }
 
         /* ============ PLAYER ROW (ADD GAME) ============ */
@@ -509,8 +694,9 @@
             align-items: center;
             margin-bottom: 0.5rem;
             padding: 0.5rem;
-            background-color: #f9fafb;
-            border-radius: var(--radius);
+            background-color: #f8fafc;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
         }
 
         .player-row input {
@@ -518,6 +704,7 @@
             border: 1px solid var(--border);
             border-radius: 4px;
             font-size: 0.9rem;
+            font-family: inherit;
         }
 
         .player-row .remove-btn {
@@ -528,6 +715,11 @@
             padding: 0.4rem 0.7rem;
             cursor: pointer;
             font-weight: bold;
+            transition: background-color var(--transition);
+        }
+
+        .player-row .remove-btn:hover {
+            background-color: var(--danger-hover);
         }
 
         /* ============ W/L CIRCLES ============ */
@@ -540,25 +732,27 @@
             height: 24px;
             border-radius: 50%;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             margin-left: 0.5rem;
             color: white;
             flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .w-circle {
-            background-color: #3b82f6;
+            background-color: var(--serbian-blue);
         }
 
         .l-circle {
-            background-color: #ef4444;
+            background-color: var(--serbian-red);
         }
 
         /* ============ MARGIN IN GAME HEADER ============ */
         .margin-indicator {
-            font-weight: bold;
+            font-weight: 800;
             font-size: 1.2rem;
             margin-left: 0.5rem;
+            color: var(--text-darker);
         }
 
         /* ============ CLUB INPUT VISIBILITY ============ */
@@ -570,6 +764,33 @@
             font-size: 0.9rem;
             color: #1f2937;
             background: white;
+            font-family: inherit;
+        }
+
+        /* ============ ACCENT BORDER EXAMPLE (Requirement 7) ============ */
+        .accent-border {
+            border-left: 4px solid var(--serbian-red);
+            border-right: 1px solid var(--border);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            background: #fff;
+        }
+
+        /* Serbian flag accent header example */
+        .serbian-header {
+            background: linear-gradient(135deg, var(--serbian-blue) 0%, #0a2f55 100%);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border-bottom: 4px solid var(--serbian-red);
+            margin-bottom: 1rem;
+        }
+
+        .serbian-header h2,
+        .serbian-header h3 {
+            color: white;
         }
 
         /* ============ RESPONSIVE ============ */
@@ -585,7 +806,11 @@
                 flex-direction: column;
             }
             nav ul {
-                gap: 0.5rem;
+                gap: 0.3rem;
+            }
+            nav ul li a {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
             }
             .player-row {
                 grid-template-columns: 1fr;
@@ -593,13 +818,19 @@
             .game-card {
                 flex-wrap: wrap;
                 justify-content: center;
+                gap: 0.5rem;
             }
-            .game-left, .game-right {
+            .game-left,
+            .game-right {
                 flex: 1;
                 text-align: center;
+                justify-content: center;
             }
             .game-middle {
                 padding: 0.5rem 0;
+            }
+            .player-name {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -631,7 +862,7 @@
         const DB_NAME = 'basketball_manager_db';
         const DB_VERSION = 1;
         const STORE_NAME = 'data';
-        const STORAGE_KEY = 'basketball_manager_data'; // still used as key for IndexedDB and legacy localStorage
+        const STORAGE_KEY = 'basketball_manager_data';
 
         function idbOpen() {
             return new Promise((resolve, reject) => {
@@ -678,7 +909,6 @@
 
         // -------- DATA MIGRATION HELPERS --------
         function migrateData(data) {
-            // Ensure players have new fields
             data.players = data.players.map(player => {
                 let clubs = [];
                 if (typeof player.previousClubs === 'string' && player.previousClubs) {
@@ -694,7 +924,6 @@
                     ntDebutDate: player.ntDebutDate || ''
                 };
             });
-            // Ensure games have new fields
             data.games = data.games.map(game => {
                 let photos = [];
                 if (game.photos && Array.isArray(game.photos)) {
@@ -716,7 +945,6 @@
 
         // -------- LOAD / SAVE DATA (IndexedDB-first) --------
         async function loadData() {
-            // Try IndexedDB first
             try {
                 const idbData = await idbGet(STORAGE_KEY);
                 if (idbData) {
@@ -725,13 +953,11 @@
             } catch (err) {
                 console.warn('IndexedDB read failed, falling back to localStorage', err);
             }
-            // Fallback to localStorage (legacy)
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
                 try {
                     const data = JSON.parse(stored);
                     const migrated = migrateData(data);
-                    // Save to IndexedDB for future use (fire and forget)
                     idbSet(STORAGE_KEY, migrated).catch(e => console.error('Failed to save to IndexedDB', e));
                     return migrated;
                 } catch (e) {
@@ -742,9 +968,7 @@
         }
 
         async function saveData(data) {
-            // Save to IndexedDB (primary)
             await idbSet(STORAGE_KEY, data);
-            // Attempt to update localStorage as backup (may fail due to quota, that's okay)
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             } catch (e) {
@@ -771,7 +995,8 @@
             editingPlayerId: null,
             editingGameId: null,
             currentReturnGameId: null,
-            data: null // will be loaded asynchronously
+            currentReturnPlayerId: null,
+            data: null
         };
 
         // -------- UTILITY FUNCTIONS --------
@@ -797,7 +1022,6 @@
             return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         }
 
-        // Improved image compression with fallback and size control
         function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -908,7 +1132,7 @@
             const mapping = {
                 'friendly': { bg: '#fee2e2', color: '#991b1b' },
                 'prijateljska': { bg: '#fee2e2', color: '#991b1b' },
-                'eurobasket': { bg: '#fef3c7', color: '#92400e' },
+                'eurobasket': { bg: '#fbbf24', color: '#78350f' },
                 'fiba world cup': { bg: '#dbeafe', color: '#1e40af' },
                 'fiba world cup qualifier': { bg: '#dbeafe', color: '#1e40af' },
                 'olympic games': { bg: '#d1fae5', color: '#065f46' },
@@ -940,18 +1164,27 @@
             if (view !== 'playerDetail') {
                 appState.currentReturnGameId = null;
             }
+            if (view !== 'gameDetail') {
+                appState.currentReturnPlayerId = null;
+            }
             document.querySelectorAll('nav a').forEach(link => {
                 link.classList.remove('active');
                 if (link.dataset.view === view) {
                     link.classList.add('active');
                 }
             });
+            window.scrollTo(0, 0);
             renderApp();
         }
 
         function navigateToPlayerDetail(playerId, returnGameId = null) {
             appState.currentReturnGameId = returnGameId;
             navigateTo('playerDetail', playerId);
+        }
+
+        function navigateToGameFromPlayer(gameId, playerId) {
+            appState.currentReturnPlayerId = playerId;
+            navigateTo('gameDetail', gameId);
         }
 
         // -------- RECALCULATE APPEARANCES (async) --------
@@ -974,7 +1207,7 @@
 
         // -------- RENDER MAIN APP --------
         function renderApp() {
-            if (!appState.data) return; // wait for data load
+            if (!appState.data) return;
             const appDiv = document.getElementById('app');
             const view = appState.currentView;
             appDiv.innerHTML = '';
@@ -993,6 +1226,7 @@
                 case 'addThread': renderAddThread(appDiv); break;
                 default: renderDashboard(appDiv);
             }
+            window.scrollTo(0, 0);
         }
 
         // -------- DASHBOARD VIEW --------
@@ -1027,7 +1261,7 @@
             container.appendChild(card);
 
             if (games.length > 0) {
-                const recentGames = [...games].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,3);
+                const recentGames = [...games].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
                 const recentCard = document.createElement('div');
                 recentCard.className = 'card';
                 recentCard.innerHTML = `<h2>📅 Recent Games</h2>`;
@@ -1082,8 +1316,8 @@
                     <span class="badge">Blue = Points</span>
                 </div>
                 <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
-                    <input type="text" id="playerSearch" placeholder="Search players..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
-                    <select id="playerSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius); background:white;">
+                    <input type="text" id="playerSearch" placeholder="Search players..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                    <select id="playerSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;">
                         <option value="default">Default (Games, Points)</option>
                         <option value="name_asc">Name (A → Z)</option>
                         <option value="name_desc">Name (Z → A)</option>
@@ -1106,8 +1340,8 @@
 
             function updateList() {
                 const searchTerm = searchInput.value.trim().toLowerCase();
-                let filtered = players.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm) || 
+                let filtered = players.filter(p =>
+                    p.name.toLowerCase().includes(searchTerm) ||
                     (p.position && p.position.toLowerCase().includes(searchTerm))
                 );
 
@@ -1175,8 +1409,8 @@
             const totalPoints = getPlayerTotalPoints(playerId);
             const motmCount = getPlayerMotmCount(playerId);
 
-            const avatarHtml = player.photo 
-                ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}">` 
+            const avatarHtml = player.photo
+                ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}">`
                 : escapeHtml(player.name.charAt(0).toUpperCase());
 
             const backToGameButton = appState.currentReturnGameId
@@ -1209,15 +1443,15 @@
                     </div>
                 </div>
                 <div style="margin-top:1rem;">
-                    <p>${player.dob ? formatDate(player.dob) : ''}</p>
+                    <p>${player.dob ? '📅 ' + formatDate(player.dob) : ''}</p>
                     <p>${player.cityOfBirth || ''}</p>
                     <p>
-                        ${player.previousClubs && player.previousClubs.length > 0 
-                            ? player.previousClubs.map(club => `<span style="color: ${club.color || '#1f2937'}; font-weight: bold;">${escapeHtml(club.name)}</span>`).join(', ')
+                        ${player.previousClubs && player.previousClubs.length > 0
+                            ? player.previousClubs.map(club => `<span style="color: ${club.color || '#1f2937'}; font-weight: 600;">${escapeHtml(club.name)}</span>`).join(', ')
                             : ''
                         }
                     </p>
-                    <p>${player.ntDebutDate ? formatDate(player.ntDebutDate) : ''}</p>
+                    <p>${player.ntDebutDate ? '🏆 NT Debut: ' + formatDate(player.ntDebutDate) : ''}</p>
                 </div>
                 <div id="playerGamesList" style="margin-top:1rem;"></div>
                 <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -1240,7 +1474,7 @@
             if (playerGames.length === 0) {
                 gamesContainer.innerHTML = '<p>No games recorded for this player.</p>';
             } else {
-                playerGames.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(game => {
+                playerGames.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(game => {
                     const gameDiv = document.createElement('div');
                     gameDiv.className = 'game-card';
                     gameDiv.style.padding = '0.4rem 0.6rem';
@@ -1264,11 +1498,11 @@
                         </div>
                         <div class="game-right">
                             ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color}; font-size:0.7rem; padding:0.1rem 0.4rem;">${escapeHtml(game.occasion)}</span>` : ''}
+                            <span class="badge" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${points}</span>
+                            ${isMotm ? '<span class="badge nt" style="font-size:0.7rem; padding:0.1rem 0.4rem;">MOTM</span>' : ''}
                         </div>
-                        <span class="badge" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${points}</span>
-                        ${isMotm ? '<span class="badge nt" style="font-size:0.7rem; padding:0.1rem 0.4rem;">MOTM</span>' : ''}
                     `;
-                    gameDiv.addEventListener('click', () => navigateTo('gameDetail', game.id));
+                    gameDiv.addEventListener('click', () => navigateToGameFromPlayer(game.id, player.id));
                     gamesContainer.appendChild(gameDiv);
                 });
             }
@@ -1277,21 +1511,21 @@
         // -------- GAMES LIST VIEW --------
         function renderGames(container) {
             const { games } = appState.data;
-            const years = [...new Set(games.map(g => new Date(g.date).getFullYear()).filter(Boolean))].sort((a,b) => b-a);
+            const years = [...new Set(games.map(g => new Date(g.date).getFullYear()).filter(Boolean))].sort((a, b) => b - a);
 
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
                 <h2>📅 Games</h2>
                 <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
-                    <input type="text" id="gameSearch" placeholder="Search games by team..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
-                    <select id="gameOccasionFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius); background:white;">
+                    <input type="text" id="gameSearch" placeholder="Search games by team..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                    <select id="gameOccasionFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;">
                         <option value="all">All Occasions</option>
                     </select>
-                    <select id="gameYearFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius); background:white;">
+                    <select id="gameYearFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;">
                         <option value="all">All Years</option>
                     </select>
-                    <select id="gameSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius); background:white;">
+                    <select id="gameSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;">
                         <option value="date_desc">Date (Newest First)</option>
                         <option value="date_asc">Date (Oldest First)</option>
                         <option value="opponent_asc">Opponent (A → Z)</option>
@@ -1336,8 +1570,8 @@
                 const selectedYear = yearFilter.value;
 
                 let filtered = games.filter(g => {
-                    const matchesSearch = g.homeTeam.toLowerCase().includes(searchTerm) || 
-                                         g.awayTeam.toLowerCase().includes(searchTerm);
+                    const matchesSearch = g.homeTeam.toLowerCase().includes(searchTerm) ||
+                        g.awayTeam.toLowerCase().includes(searchTerm);
                     const matchesOccasion = selectedOccasion === 'all' || (g.occasion || '') === selectedOccasion;
                     const matchesYear = selectedYear === 'all' || new Date(g.date).getFullYear().toString() === selectedYear;
                     return matchesSearch && matchesOccasion && matchesYear;
@@ -1407,6 +1641,9 @@
 
             const margin = game.homeScore - game.awayScore;
             const marginSign = game.result === 'W' ? '+' : game.result === 'L' ? '-' : '';
+            const backToPlayerButton = appState.currentReturnPlayerId
+                ? `<button class="secondary" onclick="navigateToPlayerDetail('${appState.currentReturnPlayerId}', '${game.id}')">Back to Player</button>`
+                : '';
 
             const card = document.createElement('div');
             card.className = 'card';
@@ -1414,7 +1651,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
                     <h2 style="margin-bottom:0;">
                         ${escapeHtml(game.homeTeam)} vs ${escapeHtml(game.awayTeam)}
-                        <span style="font-size:1.2em; font-weight:bold;">${game.homeScore} - ${game.awayScore}</span>
+                        <span style="font-size:1.2em; font-weight:800;">${game.homeScore} - ${game.awayScore}</span>
                     </h2>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
                         ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
@@ -1432,8 +1669,9 @@
                 </div>
                 <h3 style="margin-top:1.5rem;">Players & Points</h3>
                 <div id="gamePlayers"></div>
-                <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+                <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
                     <button class="secondary" onclick="navigateTo('games')">Back to Games</button>
+                    ${backToPlayerButton}
                     <button class="secondary" id="editGameBtn">Edit Game</button>
                     <button class="danger" onclick="deleteGame('${game.id}')">Delete Game</button>
                 </div>
@@ -1510,7 +1748,7 @@
                 return;
             }
 
-            const sortedCoaches = [...coachMap.entries()].sort((a,b) => {
+            const sortedCoaches = [...coachMap.entries()].sort((a, b) => {
                 const totalA = a[1].wins + a[1].losses;
                 const totalB = b[1].wins + b[1].losses;
                 if (totalB !== totalA) return totalB - totalA;
@@ -1554,7 +1792,7 @@
             if (threads.length === 0) {
                 threadList.innerHTML = '<p>No threads yet. Start a discussion!</p>';
             } else {
-                const sortedThreads = [...threads].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+                const sortedThreads = [...threads].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 sortedThreads.forEach(thread => {
                     const threadDiv = document.createElement('div');
                     threadDiv.className = 'thread-list-item';
@@ -1583,7 +1821,7 @@
             card.innerHTML = `
                 <h2>${escapeHtml(thread.title)}</h2>
                 <div class="thread-meta">Posted by ${escapeHtml(thread.author)} on ${formatDate(thread.createdAt)}</div>
-                <div style="margin-top:1rem; padding:1rem; background:#f9fafb; border-radius:var(--radius);">
+                <div style="margin-top:1rem; padding:1rem; background:#f8fafc; border-radius:var(--radius-sm);">
                     ${escapeHtml(thread.content)}
                 </div>
                 <h3 style="margin-top:1.5rem;">Replies (${thread.replies ? thread.replies.length : 0})</h3>
@@ -1934,7 +2172,7 @@
                         <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
                             <button type="button" class="secondary" id="uploadGamePhotoBtn">Upload Photo from PC</button>
                             <input type="file" id="gamePhotoFileInput" accept="image/*" style="display:none;" multiple>
-                            <input type="url" id="gamePhotoUrl" placeholder="https://example.com/image.jpg" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius);">
+                            <input type="url" id="gamePhotoUrl" placeholder="https://example.com/image.jpg" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm);">
                             <button type="button" class="secondary" id="setPhotoUrlBtn">Add URL Photo</button>
                         </div>
                         <small>Max 6 photos.</small>
@@ -1957,7 +2195,6 @@
             const photoUrlInput = card.querySelector('#gamePhotoUrl');
             const setPhotoUrlBtn = card.querySelector('#setPhotoUrlBtn');
 
-            // Initialize player rows
             if (isEditing && editingGame.playerStats) {
                 editingGame.playerStats.forEach(stat => {
                     const player = getPlayerById(stat.playerId);
@@ -2024,7 +2261,6 @@
                 }
             }
 
-            // Photo management
             function renderPhotos() {
                 gamePhotosGallery.innerHTML = tempPhotos.map((photo, idx) => `
                     <div style="position:relative; display:inline-block;">
@@ -2073,7 +2309,6 @@
                 photoUrlInput.value = '';
             });
 
-            // Form submission
             card.querySelector('#addGameForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const date = card.querySelector('#gameDate').value;
@@ -2117,14 +2352,17 @@
                 }
 
                 if (isEditing) {
-                    await updateGame(editingGame, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, tempPhotos);
+                    await updateGame(editingGame, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach,
+                        result, playersData, motmName, tempPhotos);
                 } else {
-                    await addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, tempPhotos);
+                    await addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result,
+                        playersData, motmName, tempPhotos);
                 }
             });
         }
 
-        async function updateGame(game, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, photos) {
+        async function updateGame(game, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result,
+            playersData, motmName, photos) {
             const originalGame = { ...game };
             try {
                 game.date = date;
@@ -2172,7 +2410,7 @@
                 }
 
                 await saveData(appState.data);
-                await recalculateAppearances(); // saveData already called, but recalculate also saves
+                await recalculateAppearances();
                 appState.editingGameId = null;
                 navigateTo('gameDetail', game.id);
             } catch (error) {
@@ -2181,7 +2419,8 @@
             }
         }
 
-        async function addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, photos) {
+        async function addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result,
+            playersData, motmName, photos) {
             const playerStats = [];
             playersData.forEach(pData => {
                 const existingPlayer = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
@@ -2373,6 +2612,7 @@
         // Expose functions globally for inline onclick
         window.navigateTo = navigateTo;
         window.navigateToPlayerDetail = navigateToPlayerDetail;
+        window.navigateToGameFromPlayer = navigateToGameFromPlayer;
         window.addReply = addReply;
         window.deletePlayer = deletePlayer;
         window.deleteGame = deleteGame;
