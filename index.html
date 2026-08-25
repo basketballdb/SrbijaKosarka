@@ -10,12 +10,9 @@
     <style>
         /* ============ SERBIAN FLAG COLOR PALETTE & GLOBAL VARIABLES ============ */
         :root {
-            /* Serbian flag colors */
             --serbian-blue: #0c4076;
             --serbian-red: #c6363c;
             --serbian-white: #ffffff;
-
-            /* Refined palette based on Serbian flag */
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --primary: var(--serbian-blue);
@@ -53,7 +50,6 @@
             font-size: 0.95rem;
         }
 
-        /* ============ TYPOGRAPHY UPGRADE (Requirement 5) ============ */
         h1,
         h2,
         h3,
@@ -76,7 +72,6 @@
             font-weight: 700;
         }
 
-        /* ============ MICRO-INTERACTIONS (Requirement 8) ============ */
         a {
             color: var(--primary);
             text-decoration: none;
@@ -91,7 +86,6 @@
             transition: background-color var(--transition), color var(--transition);
         }
 
-        /* Badge / Pill class with hover lift */
         .badge-pill,
         .badge {
             display: inline-flex;
@@ -122,8 +116,6 @@
             background-color: var(--primary-light);
         }
 
-        /* ============ TABLE CSS (Requirement 6) ============ */
-        /* Wrap your table in <div class="table-wrapper"> for scroll & sticky headers */
         .table-wrapper {
             overflow-x: auto;
             border-radius: var(--radius);
@@ -169,7 +161,6 @@
             transition: background-color var(--transition);
         }
 
-        /* ============ NAVIGATION ============ */
         nav {
             background: linear-gradient(135deg, var(--serbian-blue) 0%, #0a2f55 100%);
             color: white;
@@ -224,14 +215,12 @@
             box-shadow: 0 2px 6px rgba(198, 54, 60, 0.4);
         }
 
-        /* ============ MAIN CONTAINER ============ */
         #app {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 1.2rem;
         }
 
-        /* ============ CARDS & SECTIONS ============ */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -254,7 +243,6 @@
             padding-bottom: 0.5rem;
         }
 
-        /* ============ FORMS ============ */
         .form-group {
             margin-bottom: 1rem;
         }
@@ -341,7 +329,6 @@
             background-color: var(--danger-hover);
         }
 
-        /* ============ LISTS & ITEMS ============ */
         .list-item {
             display: flex;
             justify-content: space-between;
@@ -404,7 +391,6 @@
             background-color: #8b5cf6;
         }
 
-        /* ============ PLAYER LIST AVATAR ============ */
         .player-list-avatar {
             width: 35px;
             height: 35px;
@@ -429,7 +415,6 @@
             border-radius: 50%;
         }
 
-        /* ============ PLAYER PROFILE ============ */
         .player-header {
             display: flex;
             align-items: center;
@@ -513,7 +498,6 @@
             margin-bottom: 1.5rem;
         }
 
-        /* ============ MESSAGES ============ */
         .message {
             padding: 1rem;
             border-radius: var(--radius-sm);
@@ -533,7 +517,6 @@
             border: 1px solid #f87171;
         }
 
-        /* ============ FORUM STYLES ============ */
         .thread-list-item {
             padding: 1rem;
             border: 1px solid var(--border);
@@ -577,7 +560,6 @@
             font-size: 0.8rem;
         }
 
-        /* ============ GAME ITEM ============ */
         .game-card {
             display: flex;
             justify-content: space-between;
@@ -595,6 +577,16 @@
             box-shadow: var(--shadow-hover);
             border-color: var(--primary-light);
             transform: translateY(-1px);
+        }
+
+        .game-card.motm-highlight {
+            background-color: #fef2f2;
+            border-left: 4px solid var(--serbian-red);
+        }
+
+        .game-card.training-game {
+            background-color: #f0f4f8;
+            border-left: 4px solid #94a3b8;
         }
 
         .game-left {
@@ -664,7 +656,16 @@
             transform: translateY(-1px);
         }
 
-        /* ============ GAME PHOTO GALLERY ============ */
+        .training-badge {
+            background-color: #94a3b8;
+            color: white;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
         .game-photo-gallery {
             display: flex;
             gap: 0.75rem;
@@ -686,7 +687,6 @@
             box-shadow: var(--shadow-hover);
         }
 
-        /* ============ PLAYER ROW (ADD GAME) ============ */
         .player-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr auto;
@@ -722,7 +722,6 @@
             background-color: var(--danger-hover);
         }
 
-        /* ============ W/L CIRCLES ============ */
         .w-circle,
         .l-circle {
             display: inline-flex;
@@ -747,7 +746,6 @@
             background-color: var(--serbian-red);
         }
 
-        /* ============ MARGIN IN GAME HEADER ============ */
         .margin-indicator {
             font-weight: 800;
             font-size: 1.2rem;
@@ -755,7 +753,6 @@
             color: var(--text-darker);
         }
 
-        /* ============ CLUB INPUT VISIBILITY ============ */
         .club-name-input {
             width: 200px;
             padding: 0.45rem;
@@ -767,7 +764,6 @@
             font-family: inherit;
         }
 
-        /* ============ ACCENT BORDER EXAMPLE (Requirement 7) ============ */
         .accent-border {
             border-left: 4px solid var(--serbian-red);
             border-right: 1px solid var(--border);
@@ -778,7 +774,6 @@
             background: #fff;
         }
 
-        /* Serbian flag accent header example */
         .serbian-header {
             background: linear-gradient(135deg, var(--serbian-blue) 0%, #0a2f55 100%);
             color: white;
@@ -793,7 +788,6 @@
             color: white;
         }
 
-        /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -849,16 +843,13 @@
         </ul>
     </nav>
 
-    <div id="app">
-        <!-- Dynamic content will be rendered here -->
-    </div>
+    <div id="app"></div>
 
     <script>
         // =============================================
         // SRPSKA KOŠARKA MANAGER - Full Application
         // =============================================
 
-        // -------- INDEXEDDB STORAGE LAYER (replaces localStorage) --------
         const DB_NAME = 'basketball_manager_db';
         const DB_VERSION = 1;
         const STORE_NAME = 'data';
@@ -907,7 +898,6 @@
             });
         }
 
-        // -------- DATA MIGRATION HELPERS --------
         function migrateData(data) {
             data.players = data.players.map(player => {
                 let clubs = [];
@@ -937,19 +927,17 @@
                     photos: photos,
                     occasion: game.occasion || '',
                     coach: game.coach || '',
-                    result: game.result || ''
+                    result: game.result || '',
+                    isTraining: game.isTraining || false
                 };
             });
             return data;
         }
 
-        // -------- LOAD / SAVE DATA (IndexedDB-first) --------
         async function loadData() {
             try {
                 const idbData = await idbGet(STORAGE_KEY);
-                if (idbData) {
-                    return migrateData(idbData);
-                }
+                if (idbData) return migrateData(idbData);
             } catch (err) {
                 console.warn('IndexedDB read failed, falling back to localStorage', err);
             }
@@ -986,7 +974,6 @@
             nextReplyId: 1
         };
 
-        // -------- APPLICATION STATE --------
         let appState = {
             currentView: 'dashboard',
             currentPlayerId: null,
@@ -999,7 +986,6 @@
             data: null
         };
 
-        // -------- UTILITY FUNCTIONS --------
         function generateId(prefix, currentId) {
             const id = currentId;
             if (prefix === 'player') appState.data.nextPlayerId++;
@@ -1104,6 +1090,7 @@
         function getPlayerTotalPoints(playerId) {
             let total = 0;
             appState.data.games.forEach(game => {
+                if (game.isTraining) return;
                 if (game.playerStats) {
                     game.playerStats.forEach(stat => {
                         if (stat.playerId === playerId) {
@@ -1124,8 +1111,12 @@
             });
         }
 
+        function getPlayerCompetitiveGames(playerId) {
+            return getPlayerGames(playerId).filter(game => !game.isTraining);
+        }
+
         function getPlayerMotmCount(playerId) {
-            return appState.data.games.filter(g => g.manOfTheMatch === playerId).length;
+            return appState.data.games.filter(g => !g.isTraining && g.manOfTheMatch === playerId).length;
         }
 
         function getOccasionStyle(occasion) {
@@ -1133,6 +1124,7 @@
                 'friendly': { bg: '#fee2e2', color: '#991b1b' },
                 'prijateljska': { bg: '#fee2e2', color: '#991b1b' },
                 'eurobasket': { bg: '#fbbf24', color: '#78350f' },
+                'eurobasket qualifier': { bg: '#1a365d', color: '#ffffff' },
                 'fiba world cup': { bg: '#dbeafe', color: '#1e40af' },
                 'fiba world cup qualifier': { bg: '#dbeafe', color: '#1e40af' },
                 'olympic games': { bg: '#d1fae5', color: '#065f46' },
@@ -1143,7 +1135,6 @@
             return mapping[key] || mapping['default'];
         }
 
-        // -------- NAVIGATION --------
         function navigateTo(view, param = null) {
             appState.currentView = view;
             if (view === 'playerDetail') {
@@ -1169,9 +1160,7 @@
             }
             document.querySelectorAll('nav a').forEach(link => {
                 link.classList.remove('active');
-                if (link.dataset.view === view) {
-                    link.classList.add('active');
-                }
+                if (link.dataset.view === view) link.classList.add('active');
             });
             window.scrollTo(0, 0);
             renderApp();
@@ -1187,12 +1176,12 @@
             navigateTo('gameDetail', gameId);
         }
 
-        // -------- RECALCULATE APPEARANCES (async) --------
         async function recalculateAppearances() {
             const players = appState.data.players;
             const games = appState.data.games;
             players.forEach(p => p.ntAppearances = 0);
             games.forEach(game => {
+                if (game.isTraining) return;
                 if (game.playerStats) {
                     game.playerStats.forEach(stat => {
                         const player = players.find(p => p.id === stat.playerId);
@@ -1205,13 +1194,11 @@
             await saveData(appState.data);
         }
 
-        // -------- RENDER MAIN APP --------
         function renderApp() {
             if (!appState.data) return;
             const appDiv = document.getElementById('app');
             const view = appState.currentView;
             appDiv.innerHTML = '';
-
             switch (view) {
                 case 'dashboard': renderDashboard(appDiv); break;
                 case 'players': renderPlayers(appDiv); break;
@@ -1229,11 +1216,12 @@
             window.scrollTo(0, 0);
         }
 
-        // -------- DASHBOARD VIEW --------
         function renderDashboard(container) {
             const { players, games } = appState.data;
+            const competitiveGames = games.filter(g => !g.isTraining);
             const totalPlayers = players.length;
-            const totalGames = games.length;
+            const totalGames = competitiveGames.length;
+            const trainingGamesCount = games.length - competitiveGames.length;
 
             const card = document.createElement('div');
             card.className = 'card';
@@ -1241,14 +1229,9 @@
                 <h2>🏀 Dashboard</h2>
                 <p>Welcome to Srpska Košarka Manager. Manage players, games, and forum discussions all in one place. All data is stored locally in your browser.</p>
                 <div class="stats-container" style="margin-top:1.5rem;">
-                    <div class="stat-box">
-                        <div class="stat-number">${totalPlayers}</div>
-                        <div class="stat-label">Players</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">${totalGames}</div>
-                        <div class="stat-label">Games</div>
-                    </div>
+                    <div class="stat-box"><div class="stat-number">${totalPlayers}</div><div class="stat-label">Players</div></div>
+                    <div class="stat-box"><div class="stat-number">${totalGames}</div><div class="stat-label">Competitive Games</div></div>
+                    ${trainingGamesCount > 0 ? `<div class="stat-box"><div class="stat-number">${trainingGamesCount}</div><div class="stat-label">🔒 Training</div></div>` : ''}
                 </div>
                 <div style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
                     <button class="secondary" onclick="navigateTo('players')">View Players</button>
@@ -1267,11 +1250,12 @@
                 recentCard.innerHTML = `<h2>📅 Recent Games</h2>`;
                 recentGames.forEach(game => {
                     const gameDiv = document.createElement('div');
-                    gameDiv.className = 'game-card';
+                    gameDiv.className = 'game-card' + (game.isTraining ? ' training-game' : '');
                     const occasionStyle = getOccasionStyle(game.occasion);
                     gameDiv.innerHTML = `
                         <div class="game-left">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
+                            ${game.isTraining ? '<span class="training-badge">🔒 Trening</span>' : ''}
                             <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                         </div>
                         <div class="game-middle">
@@ -1294,15 +1278,15 @@
             }
         }
 
-        // -------- PLAYERS LIST VIEW --------
         function renderPlayers(container) {
             const { players } = appState.data;
             const getPoints = (playerId) => getPlayerTotalPoints(playerId);
             const getApps = (playerId) => getPlayerAppearances(playerId).nt;
+            const getGamesCount = (playerId) => getPlayerCompetitiveGames(playerId).length;
 
             const defaultSort = (a, b) => {
-                const gamesA = getPlayerGames(a.id).length;
-                const gamesB = getPlayerGames(b.id).length;
+                const gamesA = getGamesCount(a.id);
+                const gamesB = getGamesCount(b.id);
                 if (gamesB !== gamesA) return gamesB - gamesA;
                 return getPoints(b.id) - getPoints(a.id);
             };
@@ -1312,19 +1296,16 @@
             card.innerHTML = `
                 <h2>👥 Players</h2>
                 <div style="margin-bottom:0.75rem; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-                    <span class="badge nt">Yellow = Appearances</span>
+                    <span class="badge nt">Red = Appearances</span>
                     <span class="badge">Blue = Points</span>
                 </div>
                 <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
                     <input type="text" id="playerSearch" placeholder="Search players..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm);">
                     <select id="playerSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;">
-                        <option value="default">Default (Games, Points)</option>
+                        <option value="default">Default (Apps, Points)</option>
                         <option value="name_asc">Name (A → Z)</option>
-                        <option value="name_desc">Name (Z → A)</option>
                         <option value="apps_desc">Apps (High → Low)</option>
-                        <option value="apps_asc">Apps (Low → High)</option>
                         <option value="pts_desc">Points (High → Low)</option>
-                        <option value="pts_asc">Points (Low → High)</option>
                     </select>
                 </div>
                 <div id="playersList"></div>
@@ -1344,23 +1325,17 @@
                     p.name.toLowerCase().includes(searchTerm) ||
                     (p.position && p.position.toLowerCase().includes(searchTerm))
                 );
-
                 const sortBy = sortSelect.value;
                 filtered = [...filtered].sort((a, b) => {
                     switch (sortBy) {
                         case 'name_asc': return a.name.localeCompare(b.name);
-                        case 'name_desc': return b.name.localeCompare(a.name);
                         case 'apps_desc': return getApps(b.id) - getApps(a.id);
-                        case 'apps_asc': return getApps(a.id) - getApps(b.id);
                         case 'pts_desc': return getPoints(b.id) - getPoints(a.id);
-                        case 'pts_asc': return getPoints(a.id) - getPoints(b.id);
                         default: return defaultSort(a, b);
                     }
                 });
-
                 renderPlayerList(listContainer, filtered);
             }
-
             updateList();
             searchInput.addEventListener('input', updateList);
             sortSelect.addEventListener('change', updateList);
@@ -1368,10 +1343,7 @@
 
         function renderPlayerList(container, players) {
             container.innerHTML = '';
-            if (players.length === 0) {
-                container.innerHTML = '<p>No players found.</p>';
-                return;
-            }
+            if (players.length === 0) { container.innerHTML = '<p>No players found.</p>'; return; }
             players.forEach(player => {
                 const item = document.createElement('div');
                 item.className = 'list-item';
@@ -1395,24 +1367,18 @@
             });
         }
 
-        // -------- PLAYER DETAIL VIEW --------
         function renderPlayerDetail(container) {
             const playerId = appState.currentPlayerId;
             const player = getPlayerById(playerId);
-            if (!player) {
-                container.innerHTML = '<div class="card"><p>Player not found.</p></div>';
-                return;
-            }
+            if (!player) { container.innerHTML = '<div class="card"><p>Player not found.</p></div>'; return; }
 
             const appearances = getPlayerAppearances(playerId);
             const playerGames = getPlayerGames(playerId);
             const totalPoints = getPlayerTotalPoints(playerId);
             const motmCount = getPlayerMotmCount(playerId);
-
             const avatarHtml = player.photo
                 ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}">`
                 : escapeHtml(player.name.charAt(0).toUpperCase());
-
             const backToGameButton = appState.currentReturnGameId
                 ? `<button class="secondary" onclick="navigateTo('gameDetail', '${appState.currentReturnGameId}')">Back to Game</button>`
                 : '';
@@ -1429,28 +1395,14 @@
                     </div>
                 </div>
                 <div class="stats-container">
-                    <div class="stat-box">
-                        <div class="stat-number">${appearances.nt}</div>
-                        <div class="stat-label">National Team Appearances</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">${totalPoints}</div>
-                        <div class="stat-label">Total Points</div>
-                    </div>
-                    <div class="stat-box motm">
-                        <div class="stat-number">${motmCount}</div>
-                        <div class="stat-label">MOTM Awards</div>
-                    </div>
+                    <div class="stat-box"><div class="stat-number">${appearances.nt}</div><div class="stat-label">NT Appearances</div></div>
+                    <div class="stat-box"><div class="stat-number">${totalPoints}</div><div class="stat-label">Total Points</div></div>
+                    <div class="stat-box motm"><div class="stat-number">${motmCount}</div><div class="stat-label">MOTM Awards</div></div>
                 </div>
                 <div style="margin-top:1rem;">
                     <p>${player.dob ? '📅 ' + formatDate(player.dob) : ''}</p>
                     <p>${player.cityOfBirth || ''}</p>
-                    <p>
-                        ${player.previousClubs && player.previousClubs.length > 0
-                            ? player.previousClubs.map(club => `<span style="color: ${club.color || '#1f2937'}; font-weight: 600;">${escapeHtml(club.name)}</span>`).join(', ')
-                            : ''
-                        }
-                    </p>
+                    <p>${player.previousClubs && player.previousClubs.length > 0 ? player.previousClubs.map(club => `<span style="color: ${club.color || '#1f2937'}; font-weight: 600;">${escapeHtml(club.name)}</span>`).join(', ') : ''}</p>
                     <p>${player.ntDebutDate ? '🏆 NT Debut: ' + formatDate(player.ntDebutDate) : ''}</p>
                 </div>
                 <div id="playerGamesList" style="margin-top:1rem;"></div>
@@ -1463,12 +1415,7 @@
             container.appendChild(card);
 
             const editBtn = card.querySelector('#editPlayerBtn');
-            if (editBtn) {
-                editBtn.addEventListener('click', () => {
-                    appState.editingPlayerId = player.id;
-                    navigateTo('addPlayer');
-                });
-            }
+            if (editBtn) editBtn.addEventListener('click', () => { appState.editingPlayerId = player.id; navigateTo('addPlayer'); });
 
             const gamesContainer = card.querySelector('#playerGamesList');
             if (playerGames.length === 0) {
@@ -1480,18 +1427,24 @@
                     gameDiv.style.padding = '0.4rem 0.6rem';
                     gameDiv.style.marginBottom = '0.4rem';
                     gameDiv.style.fontSize = '0.9rem';
+
                     let points = 0;
                     if (game.playerStats) {
                         const stat = game.playerStats.find(s => s.playerId === playerId);
                         if (stat) points = stat.points || 0;
                     }
-                    const isMotm = game.manOfTheMatch === playerId;
+                    const isMotm = game.manOfTheMatch === playerId && !game.isTraining;
                     const occasionStyle = getOccasionStyle(game.occasion);
+
+                    if (isMotm) gameDiv.classList.add('motm-highlight');
+                    if (game.isTraining) gameDiv.classList.add('training-game');
+
                     gameDiv.innerHTML = `
                         <div class="game-left">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
                             <span class="thread-meta" style="margin-left:0.5rem;">${formatDate(game.date)}</span>
                             ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
+                            ${game.isTraining ? '<span class="training-badge">🔒 Trening</span>' : ''}
                         </div>
                         <div class="game-middle">
                             <div class="game-score">${game.homeScore} - ${game.awayScore}</div>
@@ -1499,7 +1452,6 @@
                         <div class="game-right">
                             ${game.occasion ? `<span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color}; font-size:0.7rem; padding:0.1rem 0.4rem;">${escapeHtml(game.occasion)}</span>` : ''}
                             <span class="badge" style="font-size:0.7rem; padding:0.1rem 0.4rem;">${points}</span>
-                            ${isMotm ? '<span class="badge nt" style="font-size:0.7rem; padding:0.1rem 0.4rem;">MOTM</span>' : ''}
                         </div>
                     `;
                     gameDiv.addEventListener('click', () => navigateToGameFromPlayer(game.id, player.id));
@@ -1508,23 +1460,17 @@
             }
         }
 
-        // -------- GAMES LIST VIEW --------
         function renderGames(container) {
             const { games } = appState.data;
             const years = [...new Set(games.map(g => new Date(g.date).getFullYear()).filter(Boolean))].sort((a, b) => b - a);
-
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
                 <h2>📅 Games</h2>
                 <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
                     <input type="text" id="gameSearch" placeholder="Search games by team..." style="flex:1; min-width:200px; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm);">
-                    <select id="gameOccasionFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;">
-                        <option value="all">All Occasions</option>
-                    </select>
-                    <select id="gameYearFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;">
-                        <option value="all">All Years</option>
-                    </select>
+                    <select id="gameOccasionFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;"><option value="all">All Occasions</option></select>
+                    <select id="gameYearFilter" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;"><option value="all">All Years</option></select>
                     <select id="gameSort" style="padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:white;">
                         <option value="date_desc">Date (Newest First)</option>
                         <option value="date_asc">Date (Oldest First)</option>
@@ -1550,33 +1496,19 @@
             const sortSelect = card.querySelector('#gameSort');
 
             const occasions = [...new Set(games.map(g => g.occasion).filter(Boolean))];
-            occasions.forEach(occ => {
-                const option = document.createElement('option');
-                option.value = occ;
-                option.textContent = occ;
-                occasionFilter.appendChild(option);
-            });
-
-            years.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearFilter.appendChild(option);
-            });
+            occasions.forEach(occ => { const option = document.createElement('option'); option.value = occ; option.textContent = occ; occasionFilter.appendChild(option); });
+            years.forEach(year => { const option = document.createElement('option'); option.value = year; option.textContent = year; yearFilter.appendChild(option); });
 
             function updateList() {
                 const searchTerm = searchInput.value.trim().toLowerCase();
                 const selectedOccasion = occasionFilter.value;
                 const selectedYear = yearFilter.value;
-
                 let filtered = games.filter(g => {
-                    const matchesSearch = g.homeTeam.toLowerCase().includes(searchTerm) ||
-                        g.awayTeam.toLowerCase().includes(searchTerm);
+                    const matchesSearch = g.homeTeam.toLowerCase().includes(searchTerm) || g.awayTeam.toLowerCase().includes(searchTerm);
                     const matchesOccasion = selectedOccasion === 'all' || (g.occasion || '') === selectedOccasion;
                     const matchesYear = selectedYear === 'all' || new Date(g.date).getFullYear().toString() === selectedYear;
                     return matchesSearch && matchesOccasion && matchesYear;
                 });
-
                 const sortBy = sortSelect.value;
                 filtered = [...filtered].sort((a, b) => {
                     switch (sortBy) {
@@ -1591,10 +1523,8 @@
                         default: return new Date(b.date) - new Date(a.date);
                     }
                 });
-
                 renderGameList(listContainer, filtered);
             }
-
             updateList();
             searchInput.addEventListener('input', updateList);
             occasionFilter.addEventListener('change', updateList);
@@ -1604,17 +1534,15 @@
 
         function renderGameList(container, games) {
             container.innerHTML = '';
-            if (games.length === 0) {
-                container.innerHTML = '<p>No games recorded.</p>';
-                return;
-            }
+            if (games.length === 0) { container.innerHTML = '<p>No games recorded.</p>'; return; }
             games.forEach(game => {
                 const gameCard = document.createElement('div');
-                gameCard.className = 'game-card';
+                gameCard.className = 'game-card' + (game.isTraining ? ' training-game' : '');
                 const occasionStyle = getOccasionStyle(game.occasion);
                 gameCard.innerHTML = `
                     <div class="game-left">
                         <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
+                        ${game.isTraining ? '<span class="training-badge">🔒 Trening</span>' : ''}
                         <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                     </div>
                     <div class="game-middle">
@@ -1630,14 +1558,10 @@
             });
         }
 
-        // -------- GAME DETAIL VIEW --------
         function renderGameDetail(container) {
             const gameId = appState.currentGameId;
             const game = getGameById(gameId);
-            if (!game) {
-                container.innerHTML = '<div class="card"><p>Game not found.</p></div>';
-                return;
-            }
+            if (!game) { container.innerHTML = '<div class="card"><p>Game not found.</p></div>'; return; }
 
             const margin = game.homeScore - game.awayScore;
             const marginSign = game.result === 'W' ? '+' : game.result === 'L' ? '-' : '';
@@ -1652,6 +1576,7 @@
                     <h2 style="margin-bottom:0;">
                         ${escapeHtml(game.homeTeam)} vs ${escapeHtml(game.awayTeam)}
                         <span style="font-size:1.2em; font-weight:800;">${game.homeScore} - ${game.awayScore}</span>
+                        ${game.isTraining ? '<span class="training-badge" style="margin-left:0.8rem; font-size:0.8rem;">🔒 Trening</span>' : ''}
                     </h2>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
                         ${game.result ? `<span class="${game.result === 'W' ? 'w-circle' : 'l-circle'}">${game.result}</span>` : ''}
@@ -1661,12 +1586,8 @@
                 <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
                 ${game.occasion ? `<div style="margin-top:0.5rem;"><span class="game-occasion" style="background-color: ${getOccasionStyle(game.occasion).bg}; color: ${getOccasionStyle(game.occasion).color};">${escapeHtml(game.occasion)}</span></div>` : ''}
                 ${game.coach ? `<div style="margin-top:0.5rem;"><strong>Head Coach:</strong> ${escapeHtml(game.coach)}</div>` : ''}
-                <div style="margin-top:0.5rem;">
-                    <strong>Man of the Match:</strong> ${game.manOfTheMatch ? escapeHtml(getPlayerName(game.manOfTheMatch)) : 'Not selected'}
-                </div>
-                <div class="game-photo-gallery" id="gamePhotoGallery">
-                    ${(game.photos || []).map(photo => `<img src="${photo}" alt="Game Photo">`).join('')}
-                </div>
+                <div style="margin-top:0.5rem;"><strong>Man of the Match:</strong> ${game.manOfTheMatch ? escapeHtml(getPlayerName(game.manOfTheMatch)) : 'Not selected'}</div>
+                <div class="game-photo-gallery" id="gamePhotoGallery">${(game.photos || []).map(photo => `<img src="${photo}" alt="Game Photo">`).join('')}</div>
                 <h3 style="margin-top:1.5rem;">Players & Points</h3>
                 <div id="gamePlayers"></div>
                 <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -1679,12 +1600,7 @@
             container.appendChild(card);
 
             const editBtn = card.querySelector('#editGameBtn');
-            if (editBtn) {
-                editBtn.addEventListener('click', () => {
-                    appState.editingGameId = game.id;
-                    navigateTo('addGame');
-                });
-            }
+            if (editBtn) editBtn.addEventListener('click', () => { appState.editingGameId = game.id; navigateTo('addGame'); });
 
             const playersContainer = card.querySelector('#gamePlayers');
             const playerStats = game.playerStats || [];
@@ -1715,65 +1631,44 @@
             }
         }
 
-        // -------- COACHES VIEW --------
         function renderCoaches(container) {
-            const games = appState.data.games;
+            const games = appState.data.games.filter(g => !g.isTraining);
             const coachMap = new Map();
-
             games.forEach(game => {
                 if (game.coach && game.coach.trim()) {
                     const coach = game.coach.trim();
-                    if (!coachMap.has(coach)) {
-                        coachMap.set(coach, { wins: 0, losses: 0, games: [] });
-                    }
+                    if (!coachMap.has(coach)) coachMap.set(coach, { wins: 0, losses: 0, games: [] });
                     const record = coachMap.get(coach);
                     if (game.result === 'W') record.wins++;
                     else if (game.result === 'L') record.losses++;
                     record.games.push(game);
                 }
             });
-
             const card = document.createElement('div');
             card.className = 'card';
-            card.innerHTML = `
-                <h2>👔 Coaches</h2>
-                <p>Head coaches and their records based on games.</p>
-                <div id="coachesList" style="margin-top:1rem;"></div>
-            `;
+            card.innerHTML = `<h2>👔 Coaches</h2><p>Head coaches and their records based on competitive games.</p><div id="coachesList" style="margin-top:1rem;"></div>`;
             container.appendChild(card);
-
             const list = card.querySelector('#coachesList');
-            if (coachMap.size === 0) {
-                list.innerHTML = '<p>No coaches found. Add a coach to a game first.</p>';
-                return;
-            }
-
+            if (coachMap.size === 0) { list.innerHTML = '<p>No coaches found.</p>'; return; }
             const sortedCoaches = [...coachMap.entries()].sort((a, b) => {
                 const totalA = a[1].wins + a[1].losses;
                 const totalB = b[1].wins + b[1].losses;
                 if (totalB !== totalA) return totalB - totalA;
                 return a[0].localeCompare(b[0]);
             });
-
             sortedCoaches.forEach(([coachName, record]) => {
                 const total = record.wins + record.losses;
                 const coachItem = document.createElement('div');
                 coachItem.className = 'list-item';
                 coachItem.innerHTML = `
-                    <div class="item-info">
-                        <div class="item-title">${escapeHtml(coachName)}</div>
-                    </div>
-                    <div>
-                        <span class="badge">${record.wins}W - ${record.losses}L</span>
-                        <span class="badge nt">${total} Games</span>
-                    </div>
+                    <div class="item-info"><div class="item-title">${escapeHtml(coachName)}</div></div>
+                    <div><span class="badge">${record.wins}W - ${record.losses}L</span><span class="badge nt">${total} Games</span></div>
                 `;
                 coachItem.style.cursor = 'default';
                 list.appendChild(coachItem);
             });
         }
 
-        // -------- FORUM VIEW --------
         function renderForum(container) {
             const { threads } = appState.data;
             const card = document.createElement('div');
@@ -1781,17 +1676,13 @@
             card.innerHTML = `
                 <h2>💬 Basketball Forum</h2>
                 <p>Discuss basketball topics with other fans.</p>
-                <div style="margin-top:1rem;">
-                    <button class="secondary" onclick="navigateTo('addThread')">+ New Thread</button>
-                </div>
+                <div style="margin-top:1rem;"><button class="secondary" onclick="navigateTo('addThread')">+ New Thread</button></div>
                 <div id="threadList" style="margin-top:1rem;"></div>
             `;
             container.appendChild(card);
-
             const threadList = card.querySelector('#threadList');
-            if (threads.length === 0) {
-                threadList.innerHTML = '<p>No threads yet. Start a discussion!</p>';
-            } else {
+            if (threads.length === 0) { threadList.innerHTML = '<p>No threads yet. Start a discussion!</p>'; }
+            else {
                 const sortedThreads = [...threads].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 sortedThreads.forEach(thread => {
                     const threadDiv = document.createElement('div');
@@ -1807,35 +1698,22 @@
             }
         }
 
-        // -------- THREAD DETAIL VIEW --------
         function renderThreadDetail(container) {
             const threadId = appState.currentThreadId;
             const thread = getThreadById(threadId);
-            if (!thread) {
-                container.innerHTML = '<div class="card"><p>Thread not found.</p></div>';
-                return;
-            }
-
+            if (!thread) { container.innerHTML = '<div class="card"><p>Thread not found.</p></div>'; return; }
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
                 <h2>${escapeHtml(thread.title)}</h2>
                 <div class="thread-meta">Posted by ${escapeHtml(thread.author)} on ${formatDate(thread.createdAt)}</div>
-                <div style="margin-top:1rem; padding:1rem; background:#f8fafc; border-radius:var(--radius-sm);">
-                    ${escapeHtml(thread.content)}
-                </div>
+                <div style="margin-top:1rem; padding:1rem; background:#f8fafc; border-radius:var(--radius-sm);">${escapeHtml(thread.content)}</div>
                 <h3 style="margin-top:1.5rem;">Replies (${thread.replies ? thread.replies.length : 0})</h3>
                 <div id="repliesList"></div>
                 <div style="margin-top:1rem;">
                     <h4>Add Reply</h4>
-                    <div class="form-group">
-                        <label for="replyAuthor">Your Name</label>
-                        <input type="text" id="replyAuthor" placeholder="Your name">
-                    </div>
-                    <div class="form-group">
-                        <label for="replyContent">Reply</label>
-                        <textarea id="replyContent" rows="3" placeholder="Write your reply..."></textarea>
-                    </div>
+                    <div class="form-group"><label for="replyAuthor">Your Name</label><input type="text" id="replyAuthor" placeholder="Your name"></div>
+                    <div class="form-group"><label for="replyContent">Reply</label><textarea id="replyContent" rows="3" placeholder="Write your reply..."></textarea></div>
                     <button class="secondary" onclick="addReply('${thread.id}')">Post Reply</button>
                 </div>
                 <div style="margin-top:1rem;">
@@ -1844,7 +1722,6 @@
                 </div>
             `;
             container.appendChild(card);
-
             const repliesList = card.querySelector('#repliesList');
             if (thread.replies && thread.replies.length > 0) {
                 thread.replies.forEach(reply => {
@@ -1857,22 +1734,15 @@
                     `;
                     repliesList.appendChild(replyDiv);
                 });
-            } else {
-                repliesList.innerHTML = '<p>No replies yet. Be the first to reply!</p>';
-            }
+            } else { repliesList.innerHTML = '<p>No replies yet.</p>'; }
         }
 
-        // -------- ADD/EDIT PLAYER VIEW --------
         function renderAddPlayer(container) {
             const editingPlayerId = appState.editingPlayerId;
             const editingPlayer = editingPlayerId ? getPlayerById(editingPlayerId) : null;
             const isEditing = !!editingPlayer;
-
             let clubs = [];
-            if (isEditing && Array.isArray(editingPlayer.previousClubs)) {
-                clubs = editingPlayer.previousClubs.map(club => ({ ...club }));
-            }
-
+            if (isEditing && Array.isArray(editingPlayer.previousClubs)) clubs = editingPlayer.previousClubs.map(club => ({ ...club }));
             let photoDataUrl = null;
             let photoProcessingPromise = null;
 
@@ -1881,41 +1751,16 @@
             card.innerHTML = `
                 <h2>${isEditing ? '✏️ Edit Player' : '➕ Add New Player'}</h2>
                 <form id="addPlayerForm">
-                    <div class="form-group">
-                        <label for="playerName">Player Name *</label>
-                        <input type="text" id="playerName" required placeholder="e.g., Luka Doncic" value="${isEditing ? escapeHtml(editingPlayer.name) : ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="playerPosition">Position</label>
-                        <input type="text" id="playerPosition" placeholder="e.g., Point Guard" value="${isEditing ? escapeHtml(editingPlayer.position) : ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="playerNumber">Jersey Number</label>
-                        <input type="number" id="playerNumber" placeholder="e.g., 77" min="0" max="99" value="${isEditing ? (editingPlayer.number || '') : ''}">
-                    </div>
+                    <div class="form-group"><label for="playerName">Player Name *</label><input type="text" id="playerName" required placeholder="e.g., Luka Doncic" value="${isEditing ? escapeHtml(editingPlayer.name) : ''}"></div>
+                    <div class="form-group"><label for="playerPosition">Position</label><input type="text" id="playerPosition" placeholder="e.g., Point Guard" value="${isEditing ? escapeHtml(editingPlayer.position) : ''}"></div>
+                    <div class="form-group"><label for="playerNumber">Jersey Number</label><input type="number" id="playerNumber" placeholder="e.g., 77" min="0" max="99" value="${isEditing ? (editingPlayer.number || '') : ''}"></div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="playerDob">Date of Birth</label>
-                            <input type="date" id="playerDob" value="${isEditing ? (editingPlayer.dob || '') : ''}">
-                        </div>
-                        <div class="form-group">
-                            <label for="playerCity">City of Birth</label>
-                            <input type="text" id="playerCity" placeholder="e.g., Belgrade" value="${isEditing ? escapeHtml(editingPlayer.cityOfBirth) : ''}">
-                        </div>
+                        <div class="form-group"><label for="playerDob">Date of Birth</label><input type="date" id="playerDob" value="${isEditing ? (editingPlayer.dob || '') : ''}"></div>
+                        <div class="form-group"><label for="playerCity">City of Birth</label><input type="text" id="playerCity" placeholder="e.g., Belgrade" value="${isEditing ? escapeHtml(editingPlayer.cityOfBirth) : ''}"></div>
                     </div>
-                    <div class="form-group">
-                        <label>Previous Clubs</label>
-                        <div id="clubsContainer"></div>
-                        <button type="button" class="secondary" id="addClubBtn">+ Add Club</button>
-                    </div>
-                    <div class="form-group">
-                        <label for="playerNtDebut">NT Debut Date</label>
-                        <input type="date" id="playerNtDebut" value="${isEditing ? (editingPlayer.ntDebutDate || '') : ''}">
-                    </div>
-                    <div class="form-group">
-                        <label for="playerPhoto">Photo (optional)</label>
-                        <input type="file" id="playerPhoto" accept="image/*">
-                    </div>
+                    <div class="form-group"><label>Previous Clubs</label><div id="clubsContainer"></div><button type="button" class="secondary" id="addClubBtn">+ Add Club</button></div>
+                    <div class="form-group"><label for="playerNtDebut">NT Debut Date</label><input type="date" id="playerNtDebut" value="${isEditing ? (editingPlayer.ntDebutDate || '') : ''}"></div>
+                    <div class="form-group"><label for="playerPhoto">Photo (optional)</label><input type="file" id="playerPhoto" accept="image/*"></div>
                     <div class="form-actions">
                         <button type="submit">${isEditing ? 'Update Player' : 'Add Player'}</button>
                         <button type="button" class="secondary" onclick="navigateTo('players')">Cancel</button>
@@ -1923,7 +1768,6 @@
                 </form>
             `;
             container.appendChild(card);
-
             const form = card.querySelector('#addPlayerForm');
             const clubsContainer = card.querySelector('#clubsContainer');
             const addClubBtn = card.querySelector('#addClubBtn');
@@ -1933,32 +1777,16 @@
                 form.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     try {
-                        if (photoProcessingPromise) {
-                            await photoProcessingPromise;
-                        }
+                        if (photoProcessingPromise) await photoProcessingPromise;
                         const name = form.querySelector('#playerName').value.trim();
                         const position = form.querySelector('#playerPosition').value.trim();
                         const number = form.querySelector('#playerNumber').value.trim();
                         const dob = form.querySelector('#playerDob').value;
                         const city = form.querySelector('#playerCity').value.trim();
                         const ntDebut = form.querySelector('#playerNtDebut').value;
-
-                        if (!name) {
-                            alert('Player name is required.');
-                            return;
-                        }
-
+                        if (!name) { alert('Player name is required.'); return; }
                         const filteredClubs = clubs.filter(club => club.name.trim() !== '');
-                        const playerData = {
-                            name,
-                            position,
-                            number: number ? parseInt(number) : null,
-                            dob: dob || '',
-                            cityOfBirth: city,
-                            previousClubs: filteredClubs,
-                            ntDebutDate: ntDebut || ''
-                        };
-
+                        const playerData = { name, position, number: number ? parseInt(number) : null, dob: dob || '', cityOfBirth: city, previousClubs: filteredClubs, ntDebutDate: ntDebut || '' };
                         if (isEditing) {
                             const originalPlayer = { ...editingPlayer };
                             const originalPreviousClubs = editingPlayer.previousClubs;
@@ -1978,11 +1806,8 @@
                         }
                     } catch (error) {
                         console.error('Error submitting player', error);
-                        if (error.name === 'QuotaExceededError' || error.code === 22 || error.code === 1014) {
-                            alert('Storage limit reached. Please use a smaller image or delete some data.');
-                        } else {
-                            alert('Failed to save player data. Please try again.');
-                        }
+                        if (error.name === 'QuotaExceededError' || error.code === 22 || error.code === 1014) alert('Storage limit reached. Please use a smaller image.');
+                        else alert('Failed to save player data. Please try again.');
                     }
                 });
             }
@@ -1992,37 +1817,20 @@
                     clubsContainer.innerHTML = '';
                     clubs.forEach((club, index) => {
                         const row = document.createElement('div');
-                        row.style.display = 'flex';
-                        row.style.alignItems = 'center';
-                        row.style.gap = '0.5rem';
-                        row.style.marginBottom = '0.5rem';
+                        row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '0.5rem'; row.style.marginBottom = '0.5rem';
                         row.innerHTML = `
                             <input type="text" class="club-name-input" placeholder="Club name" value="${escapeHtml(club.name)}">
                             <input type="color" class="club-color" value="${club.color || '#1f2937'}">
                             <button type="button" class="remove-club danger" style="padding:0.3rem 0.6rem;">X</button>
                         `;
-                        row.querySelector('.club-name-input').addEventListener('input', (e) => {
-                            clubs[index].name = e.target.value;
-                        });
-                        row.querySelector('.club-color').addEventListener('input', (e) => {
-                            clubs[index].color = e.target.value;
-                        });
-                        row.querySelector('.remove-club').addEventListener('click', () => {
-                            clubs.splice(index, 1);
-                            renderClubInputs();
-                        });
+                        row.querySelector('.club-name-input').addEventListener('input', (e) => { clubs[index].name = e.target.value; });
+                        row.querySelector('.club-color').addEventListener('input', (e) => { clubs[index].color = e.target.value; });
+                        row.querySelector('.remove-club').addEventListener('click', () => { clubs.splice(index, 1); renderClubInputs(); });
                         clubsContainer.appendChild(row);
                     });
                 }
-
-                function addClub() {
-                    clubs.push({ name: '', color: '#1f2937' });
-                    renderClubInputs();
-                }
-
-                if (addClubBtn) {
-                    addClubBtn.addEventListener('click', addClub);
-                }
+                function addClub() { clubs.push({ name: '', color: '#1f2937' }); renderClubInputs(); }
+                if (addClubBtn) addClubBtn.addEventListener('click', addClub);
                 renderClubInputs();
             }
 
@@ -2030,25 +1838,12 @@
                 photoInput.addEventListener('change', function(e) {
                     const file = e.target.files[0];
                     if (file) {
-                        if (file.size > 2 * 1024 * 1024) {
-                            alert('Large image detected. Compressing…');
-                        }
+                        if (file.size > 2 * 1024 * 1024) alert('Large image detected. Compressing…');
                         photoProcessingPromise = compressImage(file, 800, 800, 0.8)
-                            .then(dataUrl => {
-                                photoDataUrl = dataUrl;
-                            })
-                            .catch(err => {
-                                console.error('Image processing failed', err);
-                                alert('Failed to process image. Please try a different file.');
-                                photoDataUrl = null;
-                            })
-                            .finally(() => {
-                                photoProcessingPromise = null;
-                            });
-                    } else {
-                        photoDataUrl = null;
-                        photoProcessingPromise = null;
-                    }
+                            .then(dataUrl => { photoDataUrl = dataUrl; })
+                            .catch(err => { console.error('Image processing failed', err); alert('Failed to process image.'); photoDataUrl = null; })
+                            .finally(() => { photoProcessingPromise = null; });
+                    } else { photoDataUrl = null; photoProcessingPromise = null; }
                 });
             }
         }
@@ -2056,39 +1851,21 @@
         async function addNewPlayer(playerData, photoDataUrl) {
             const playerId = generateId('player', appState.data.nextPlayerId);
             const newPlayer = {
-                id: playerId,
-                name: playerData.name,
-                position: playerData.position,
-                number: playerData.number,
-                ntAppearances: 0,
-                photo: photoDataUrl || null,
-                dob: playerData.dob || '',
-                cityOfBirth: playerData.cityOfBirth || '',
-                previousClubs: playerData.previousClubs || [],
-                ntDebutDate: playerData.ntDebutDate || '',
-                createdAt: new Date().toISOString()
+                id: playerId, name: playerData.name, position: playerData.position, number: playerData.number,
+                ntAppearances: 0, photo: photoDataUrl || null, dob: playerData.dob || '', cityOfBirth: playerData.cityOfBirth || '',
+                previousClubs: playerData.previousClubs || [], ntDebutDate: playerData.ntDebutDate || '', createdAt: new Date().toISOString()
             };
             appState.data.players.push(newPlayer);
-            try {
-                await saveData(appState.data);
-                navigateTo('players');
-            } catch (error) {
-                appState.data.players = appState.data.players.filter(p => p.id !== playerId);
-                throw error;
-            }
+            try { await saveData(appState.data); navigateTo('players'); }
+            catch (error) { appState.data.players = appState.data.players.filter(p => p.id !== playerId); throw error; }
         }
 
-        // -------- ADD/EDIT GAME VIEW --------
         function renderAddGame(container) {
             const editingGameId = appState.editingGameId;
             const editingGame = editingGameId ? getGameById(editingGameId) : null;
             const isEditing = !!editingGame;
-
             let tempPhotos = [];
-            if (isEditing && Array.isArray(editingGame.photos)) {
-                tempPhotos = [...editingGame.photos];
-            }
-
+            if (isEditing && Array.isArray(editingGame.photos)) tempPhotos = [...editingGame.photos];
             const existingCoaches = [...new Set(appState.data.games.map(g => g.coach).filter(Boolean))];
 
             const card = document.createElement('div');
@@ -2097,47 +1874,20 @@
                 <h2>${isEditing ? '✏️ Edit Game' : '➕ Add New Game'}</h2>
                 <form id="addGameForm">
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="gameDate">Date *</label>
-                            <input type="date" id="gameDate" required value="${isEditing ? editingGame.date : ''}">
-                        </div>
-                        <div class="form-group">
-                            <label for="gameVenue">Venue (City) *</label>
-                            <input type="text" id="gameVenue" required placeholder="e.g., Belgrade" value="${isEditing ? escapeHtml(editingGame.venue) : ''}">
-                        </div>
+                        <div class="form-group"><label for="gameDate">Date *</label><input type="date" id="gameDate" required value="${isEditing ? editingGame.date : ''}"></div>
+                        <div class="form-group"><label for="gameVenue">Venue (City) *</label><input type="text" id="gameVenue" required placeholder="e.g., Belgrade" value="${isEditing ? escapeHtml(editingGame.venue) : ''}"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="homeTeam">Home Team *</label>
-                            <input type="text" id="homeTeam" required placeholder="e.g., Srbija" value="${isEditing ? escapeHtml(editingGame.homeTeam) : ''}">
-                        </div>
-                        <div class="form-group">
-                            <label for="awayTeam">Away Team *</label>
-                            <input type="text" id="awayTeam" required placeholder="e.g., Grčka" value="${isEditing ? escapeHtml(editingGame.awayTeam) : ''}">
-                        </div>
+                        <div class="form-group"><label for="homeTeam">Home Team *</label><input type="text" id="homeTeam" required placeholder="e.g., Srbija" value="${isEditing ? escapeHtml(editingGame.homeTeam) : ''}"></div>
+                        <div class="form-group"><label for="awayTeam">Away Team *</label><input type="text" id="awayTeam" required placeholder="e.g., Grčka" value="${isEditing ? escapeHtml(editingGame.awayTeam) : ''}"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="homeScore">Home Score</label>
-                            <input type="number" id="homeScore" min="0" value="${isEditing ? editingGame.homeScore : 0}">
-                        </div>
-                        <div class="form-group">
-                            <label for="awayScore">Away Score</label>
-                            <input type="number" id="awayScore" min="0" value="${isEditing ? editingGame.awayScore : 0}">
-                        </div>
+                        <div class="form-group"><label for="homeScore">Home Score</label><input type="number" id="homeScore" min="0" value="${isEditing ? editingGame.homeScore : 0}"></div>
+                        <div class="form-group"><label for="awayScore">Away Score</label><input type="number" id="awayScore" min="0" value="${isEditing ? editingGame.awayScore : 0}"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="occasion">Occasion (e.g., FIBA Qualifier, Friendly, Eurobasket)</label>
-                            <input type="text" id="occasion" placeholder="e.g., Friendly" value="${isEditing ? escapeHtml(editingGame.occasion) : ''}">
-                        </div>
-                        <div class="form-group">
-                            <label for="coach">Head Coach *</label>
-                            <input type="text" id="coach" list="coachList" required placeholder="e.g., Svetislav Pešić" value="${isEditing ? escapeHtml(editingGame.coach) : ''}">
-                            <datalist id="coachList">
-                                ${existingCoaches.map(c => `<option value="${escapeHtml(c)}">`).join('')}
-                            </datalist>
-                        </div>
+                        <div class="form-group"><label for="occasion">Occasion (e.g., FIBA Qualifier, Friendly, Eurobasket)</label><input type="text" id="occasion" placeholder="e.g., Friendly" value="${isEditing ? escapeHtml(editingGame.occasion) : ''}"></div>
+                        <div class="form-group"><label for="coach">Head Coach *</label><input type="text" id="coach" list="coachList" required placeholder="e.g., Svetislav Pešić" value="${isEditing ? escapeHtml(editingGame.coach) : ''}"><datalist id="coachList">${existingCoaches.map(c => `<option value="${escapeHtml(c)}">`).join('')}</datalist></div>
                     </div>
                     <div class="form-group">
                         <label for="result">Result (W/L)</label>
@@ -2147,28 +1897,29 @@
                             <option value="L" ${isEditing && editingGame.result === 'L' ? 'selected' : ''}>Loss (L)</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer;">
+                            <input type="checkbox" id="isTrainingGame" ${isEditing && editingGame.isTraining ? 'checked' : ''} style="width:auto;">
+                            🔒 Iza zatvorenih vrata (Trening – ne računa se u statistiku)
+                        </label>
+                    </div>
 
                     <h3>Players & Points</h3>
                     <p>Type player name (existing or new), optional position, and points scored.</p>
                     <div id="playerRowsContainer"></div>
                     <div class="form-group" style="margin-top:1rem;">
                         <label for="motmSelect">Man of the Match *</label>
-                        <select id="motmSelect" required>
-                            <option value="">Select player...</option>
-                        </select>
+                        <select id="motmSelect" required><option value="">Select player...</option></select>
                     </div>
                     <button type="button" class="secondary" id="addPlayerRowBtn">+ Add Player Row</button>
 
                     <h3 style="margin-top:1.5rem;">Game Photos</h3>
                     <div id="gamePhotosContainer">
-                        <div id="gamePhotosGallery" class="game-photo-gallery">
-                            ${tempPhotos.map((photo, idx) => `
-                                <div style="position:relative; display:inline-block;">
-                                    <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover;">
-                                    <button type="button" class="remove-photo danger" data-index="${idx}" style="position:absolute; top:5px; right:5px; border-radius:50%; width:24px; height:24px; padding:0; line-height:1;">×</button>
-                                </div>
-                            `).join('')}
-                        </div>
+                        <div id="gamePhotosGallery" class="game-photo-gallery">${tempPhotos.map((photo, idx) => `
+                            <div style="position:relative; display:inline-block;">
+                                <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover;">
+                                <button type="button" class="remove-photo danger" data-index="${idx}" style="position:absolute; top:5px; right:5px; border-radius:50%; width:24px; height:24px; padding:0; line-height:1;">×</button>
+                            </div>`).join('')}</div>
                         <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
                             <button type="button" class="secondary" id="uploadGamePhotoBtn">Upload Photo from PC</button>
                             <input type="file" id="gamePhotoFileInput" accept="image/*" style="display:none;" multiple>
@@ -2177,7 +1928,6 @@
                         </div>
                         <small>Max 6 photos.</small>
                     </div>
-
                     <div class="form-actions" style="margin-top:1.5rem;">
                         <button type="submit">${isEditing ? 'Update Game' : 'Add Game'}</button>
                         <button type="button" class="secondary" onclick="navigateTo('games')">Cancel</button>
@@ -2198,13 +1948,9 @@
             if (isEditing && editingGame.playerStats) {
                 editingGame.playerStats.forEach(stat => {
                     const player = getPlayerById(stat.playerId);
-                    if (player) {
-                        addPlayerRowWithData(player.name, player.position, stat.points);
-                    }
+                    if (player) addPlayerRowWithData(player.name, player.position, stat.points);
                 });
-            } else {
-                addPlayerRow();
-            }
+            } else { addPlayerRow(); }
 
             function addPlayerRowWithData(name = '', position = '', points = 0) {
                 const row = document.createElement('div');
@@ -2215,50 +1961,27 @@
                     <input type="number" class="player-points-input" placeholder="Points" min="0" value="${points}" required>
                     <button type="button" class="remove-btn">X</button>
                 `;
-                row.querySelector('.remove-btn').addEventListener('click', () => {
-                    row.remove();
-                    updateMotmOptions();
-                });
+                row.querySelector('.remove-btn').addEventListener('click', () => { row.remove(); updateMotmOptions(); });
                 rowsContainer.appendChild(row);
                 updateMotmOptions();
             }
-
-            function addPlayerRow() {
-                addPlayerRowWithData();
-            }
+            function addPlayerRow() { addPlayerRowWithData(); }
 
             function updateMotmOptions() {
                 const currentVal = motmSelect.value;
                 const nameInputs = rowsContainer.querySelectorAll('.player-name-input');
                 const names = [];
-                nameInputs.forEach(input => {
-                    const n = input.value.trim();
-                    if (n) names.push(n);
-                });
-                while (motmSelect.options.length > 1) {
-                    motmSelect.remove(1);
-                }
-                names.forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    motmSelect.appendChild(option);
-                });
-                if (currentVal && names.includes(currentVal)) {
-                    motmSelect.value = currentVal;
-                }
+                nameInputs.forEach(input => { const n = input.value.trim(); if (n) names.push(n); });
+                while (motmSelect.options.length > 1) motmSelect.remove(1);
+                names.forEach(name => { const option = document.createElement('option'); option.value = name; option.textContent = name; motmSelect.appendChild(option); });
+                if (currentVal && names.includes(currentVal)) motmSelect.value = currentVal;
             }
-
             rowsContainer.addEventListener('input', updateMotmOptions);
             addPlayerRowBtn.addEventListener('click', addPlayerRow);
 
             if (isEditing && editingGame.manOfTheMatch) {
                 const motmPlayer = getPlayerById(editingGame.manOfTheMatch);
-                if (motmPlayer) {
-                    setTimeout(() => {
-                        motmSelect.value = motmPlayer.name;
-                    }, 0);
-                }
+                if (motmPlayer) setTimeout(() => { motmSelect.value = motmPlayer.name; }, 0);
             }
 
             function renderPhotos() {
@@ -2266,14 +1989,9 @@
                     <div style="position:relative; display:inline-block;">
                         <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover;">
                         <button type="button" class="remove-photo danger" data-index="${idx}" style="position:absolute; top:5px; right:5px; border-radius:50%; width:24px; height:24px; padding:0; line-height:1;">×</button>
-                    </div>
-                `).join('');
+                    </div>`).join('');
                 gamePhotosGallery.querySelectorAll('.remove-photo').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const idx = parseInt(e.target.dataset.index);
-                        tempPhotos.splice(idx, 1);
-                        renderPhotos();
-                    });
+                    btn.addEventListener('click', (e) => { const idx = parseInt(e.target.dataset.index); tempPhotos.splice(idx, 1); renderPhotos(); });
                 });
             }
             renderPhotos();
@@ -2281,32 +1999,18 @@
             uploadPhotoBtn.addEventListener('click', () => fileInput.click());
             fileInput.addEventListener('change', (e) => {
                 const files = Array.from(e.target.files);
-                if (files.length + tempPhotos.length > 6) {
-                    alert('Maximum 6 photos allowed.');
-                    return;
-                }
+                if (files.length + tempPhotos.length > 6) { alert('Maximum 6 photos allowed.'); return; }
                 files.forEach(file => {
-                    compressImage(file, 800, 800, 0.8).then(dataUrl => {
-                        tempPhotos.push(dataUrl);
-                        renderPhotos();
-                    }).catch(err => {
-                        console.error('Photo compression failed', err);
-                        alert('Failed to process image. Please try a different file.');
-                    });
+                    compressImage(file, 800, 800, 0.8).then(dataUrl => { tempPhotos.push(dataUrl); renderPhotos(); })
+                        .catch(err => { console.error('Photo compression failed', err); alert('Failed to process image.'); });
                 });
                 fileInput.value = '';
             });
-
             setPhotoUrlBtn.addEventListener('click', () => {
                 const url = photoUrlInput.value.trim();
                 if (!url) return;
-                if (tempPhotos.length >= 6) {
-                    alert('Maximum 6 photos allowed.');
-                    return;
-                }
-                tempPhotos.push(url);
-                renderPhotos();
-                photoUrlInput.value = '';
+                if (tempPhotos.length >= 6) { alert('Maximum 6 photos allowed.'); return; }
+                tempPhotos.push(url); renderPhotos(); photoUrlInput.value = '';
             });
 
             card.querySelector('#addGameForm').addEventListener('submit', async function(e) {
@@ -2320,20 +2024,12 @@
                 const occasion = card.querySelector('#occasion').value.trim();
                 const coach = card.querySelector('#coach').value.trim();
                 const result = card.querySelector('#result').value;
+                const isTraining = card.querySelector('#isTrainingGame').checked;
                 const motmName = motmSelect.value;
 
-                if (!date || !venue || !homeTeam || !awayTeam) {
-                    alert('Date, Venue, Home Team, and Away Team are required.');
-                    return;
-                }
-                if (!coach) {
-                    alert('Head Coach is required.');
-                    return;
-                }
-                if (!motmName) {
-                    alert('Please select Man of the Match.');
-                    return;
-                }
+                if (!date || !venue || !homeTeam || !awayTeam) { alert('Date, Venue, Home Team, and Away Team are required.'); return; }
+                if (!coach) { alert('Head Coach is required.'); return; }
+                if (!motmName) { alert('Please select Man of the Match.'); return; }
 
                 const playerRows = rowsContainer.querySelectorAll('.player-row');
                 const playersData = [];
@@ -2341,202 +2037,96 @@
                     const name = row.querySelector('.player-name-input').value.trim();
                     const position = row.querySelector('.player-position-input').value.trim();
                     const points = parseInt(row.querySelector('.player-points-input').value) || 0;
-                    if (name) {
-                        playersData.push({ name, position, points });
-                    }
+                    if (name) playersData.push({ name, position, points });
                 });
-
-                if (playersData.length === 0) {
-                    alert('At least one player is required.');
-                    return;
-                }
+                if (playersData.length === 0) { alert('At least one player is required.'); return; }
 
                 if (isEditing) {
-                    await updateGame(editingGame, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach,
-                        result, playersData, motmName, tempPhotos);
+                    await updateGame(editingGame, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, tempPhotos, isTraining);
                 } else {
-                    await addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result,
-                        playersData, motmName, tempPhotos);
+                    await addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, tempPhotos, isTraining);
                 }
             });
         }
 
-        async function updateGame(game, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result,
-            playersData, motmName, photos) {
+        async function updateGame(game, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, photos, isTraining) {
             const originalGame = { ...game };
             try {
-                game.date = date;
-                game.venue = venue;
-                game.homeTeam = homeTeam;
-                game.awayTeam = awayTeam;
-                game.homeScore = homeScore;
-                game.awayScore = awayScore;
-                game.occasion = occasion;
-                game.coach = coach;
-                game.result = result;
-                game.photos = photos;
-
+                game.date = date; game.venue = venue; game.homeTeam = homeTeam; game.awayTeam = awayTeam;
+                game.homeScore = homeScore; game.awayScore = awayScore; game.occasion = occasion; game.coach = coach;
+                game.result = result; game.photos = photos; game.isTraining = isTraining;
                 const newPlayerStats = [];
                 playersData.forEach(pData => {
                     let player = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
                     if (!player) {
                         const playerId = generateId('player', appState.data.nextPlayerId);
-                        player = {
-                            id: playerId,
-                            name: pData.name,
-                            position: pData.position || '',
-                            number: null,
-                            ntAppearances: 0,
-                            photo: null,
-                            dob: '',
-                            cityOfBirth: '',
-                            previousClubs: [],
-                            ntDebutDate: '',
-                            createdAt: new Date().toISOString()
-                        };
+                        player = { id: playerId, name: pData.name, position: pData.position || '', number: null, ntAppearances: 0, photo: null, dob: '', cityOfBirth: '', previousClubs: [], ntDebutDate: '', createdAt: new Date().toISOString() };
                         appState.data.players.push(player);
-                    } else {
-                        if (pData.position && !player.position) {
-                            player.position = pData.position;
-                        }
-                    }
+                    } else if (pData.position && !player.position) { player.position = pData.position; }
                     newPlayerStats.push({ playerId: player.id, points: pData.points });
                 });
                 game.playerStats = newPlayerStats;
-
-                if (motmName) {
-                    const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase());
-                    if (motmPlayer) game.manOfTheMatch = motmPlayer.id;
-                }
-
+                if (motmName) { const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase()); if (motmPlayer) game.manOfTheMatch = motmPlayer.id; }
                 await saveData(appState.data);
                 await recalculateAppearances();
                 appState.editingGameId = null;
                 navigateTo('gameDetail', game.id);
-            } catch (error) {
-                Object.assign(game, originalGame);
-                throw error;
-            }
+            } catch (error) { Object.assign(game, originalGame); throw error; }
         }
 
-        async function addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result,
-            playersData, motmName, photos) {
+        async function addNewGame(date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion, coach, result, playersData, motmName, photos, isTraining) {
             const playerStats = [];
             playersData.forEach(pData => {
                 const existingPlayer = appState.data.players.find(p => p.name.toLowerCase() === pData.name.toLowerCase());
                 let playerId;
                 if (existingPlayer) {
-                    if (pData.position && !existingPlayer.position) {
-                        existingPlayer.position = pData.position;
-                    }
+                    if (pData.position && !existingPlayer.position) existingPlayer.position = pData.position;
                     playerId = existingPlayer.id;
                 } else {
                     playerId = generateId('player', appState.data.nextPlayerId);
-                    const newPlayer = {
-                        id: playerId,
-                        name: pData.name,
-                        position: pData.position || '',
-                        number: null,
-                        ntAppearances: 0,
-                        photo: null,
-                        dob: '',
-                        cityOfBirth: '',
-                        previousClubs: [],
-                        ntDebutDate: '',
-                        createdAt: new Date().toISOString()
-                    };
+                    const newPlayer = { id: playerId, name: pData.name, position: pData.position || '', number: null, ntAppearances: 0, photo: null, dob: '', cityOfBirth: '', previousClubs: [], ntDebutDate: '', createdAt: new Date().toISOString() };
                     appState.data.players.push(newPlayer);
                 }
                 playerStats.push({ playerId, points: pData.points });
             });
-
             let motmPlayerId = null;
-            if (motmName) {
-                const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase());
-                if (motmPlayer) motmPlayerId = motmPlayer.id;
-            }
-
+            if (motmName) { const motmPlayer = appState.data.players.find(p => p.name.toLowerCase() === motmName.toLowerCase()); if (motmPlayer) motmPlayerId = motmPlayer.id; }
             const gameId = generateId('game', appState.data.nextGameId);
-            const newGame = {
-                id: gameId,
-                date: date,
-                venue: venue,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                homeScore: homeScore,
-                awayScore: awayScore,
-                occasion: occasion || '',
-                coach: coach,
-                result: result,
-                photos: photos,
-                playerStats: playerStats,
-                manOfTheMatch: motmPlayerId,
-                createdAt: new Date().toISOString()
-            };
+            const newGame = { id: gameId, date, venue, homeTeam, awayTeam, homeScore, awayScore, occasion: occasion || '', coach, result, photos, playerStats, manOfTheMatch: motmPlayerId, isTraining: isTraining || false, createdAt: new Date().toISOString() };
             appState.data.games.push(newGame);
             try {
                 await saveData(appState.data);
                 await recalculateAppearances();
                 navigateTo('gameDetail', gameId);
-            } catch (error) {
-                appState.data.games = appState.data.games.filter(g => g.id !== gameId);
-                throw error;
-            }
+            } catch (error) { appState.data.games = appState.data.games.filter(g => g.id !== gameId); throw error; }
         }
 
-        // -------- ADD THREAD VIEW --------
         function renderAddThread(container) {
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
                 <h2>💬 New Forum Thread</h2>
                 <form id="addThreadForm">
-                    <div class="form-group">
-                        <label for="threadTitle">Title *</label>
-                        <input type="text" id="threadTitle" required placeholder="Thread title">
-                    </div>
-                    <div class="form-group">
-                        <label for="threadAuthor">Your Name *</label>
-                        <input type="text" id="threadAuthor" required placeholder="Your name">
-                    </div>
-                    <div class="form-group">
-                        <label for="threadContent">Content *</label>
-                        <textarea id="threadContent" rows="5" required placeholder="Write your post..."></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit">Post Thread</button>
-                        <button type="button" class="secondary" onclick="navigateTo('forum')">Cancel</button>
-                    </div>
+                    <div class="form-group"><label for="threadTitle">Title *</label><input type="text" id="threadTitle" required placeholder="Thread title"></div>
+                    <div class="form-group"><label for="threadAuthor">Your Name *</label><input type="text" id="threadAuthor" required placeholder="Your name"></div>
+                    <div class="form-group"><label for="threadContent">Content *</label><textarea id="threadContent" rows="5" required placeholder="Write your post..."></textarea></div>
+                    <div class="form-actions"><button type="submit">Post Thread</button><button type="button" class="secondary" onclick="navigateTo('forum')">Cancel</button></div>
                 </form>
             `;
             container.appendChild(card);
-
             card.querySelector('#addThreadForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const title = card.querySelector('#threadTitle').value.trim();
                 const author = card.querySelector('#threadAuthor').value.trim();
                 const content = card.querySelector('#threadContent').value.trim();
-
-                if (!title || !author || !content) {
-                    alert('All fields are required.');
-                    return;
-                }
-
+                if (!title || !author || !content) { alert('All fields are required.'); return; }
                 await addNewThread(title, author, content);
             });
         }
 
-        // -------- DATA MUTATION FUNCTIONS --------
         async function addNewThread(title, author, content) {
             const threadId = generateId('thread', appState.data.nextThreadId);
-            const newThread = {
-                id: threadId,
-                title: title,
-                author: author,
-                content: content,
-                replies: [],
-                createdAt: new Date().toISOString()
-            };
+            const newThread = { id: threadId, title, author, content, replies: [], createdAt: new Date().toISOString() };
             appState.data.threads.push(newThread);
             await saveData(appState.data);
             navigateTo('threadDetail', threadId);
@@ -2549,19 +2139,9 @@
             const contentInput = document.getElementById('replyContent');
             const author = authorInput.value.trim();
             const content = contentInput.value.trim();
-
-            if (!author || !content) {
-                alert('Name and reply content are required.');
-                return;
-            }
-
+            if (!author || !content) { alert('Name and reply content are required.'); return; }
             const replyId = generateId('reply', appState.data.nextReplyId);
-            const newReply = {
-                id: replyId,
-                author: author,
-                content: content,
-                createdAt: new Date().toISOString()
-            };
+            const newReply = { id: replyId, author, content, createdAt: new Date().toISOString() };
             if (!thread.replies) thread.replies = [];
             thread.replies.push(newReply);
             await saveData(appState.data);
@@ -2572,12 +2152,8 @@
             if (!confirm('Are you sure you want to delete this player? This will also remove them from all games.')) return;
             appState.data.players = appState.data.players.filter(p => p.id !== playerId);
             appState.data.games.forEach(game => {
-                if (game.playerStats) {
-                    game.playerStats = game.playerStats.filter(stat => stat.playerId !== playerId);
-                }
-                if (game.manOfTheMatch === playerId) {
-                    game.manOfTheMatch = null;
-                }
+                if (game.playerStats) game.playerStats = game.playerStats.filter(stat => stat.playerId !== playerId);
+                if (game.manOfTheMatch === playerId) game.manOfTheMatch = null;
             });
             await saveData(appState.data);
             await recalculateAppearances();
@@ -2599,7 +2175,6 @@
             navigateTo('forum');
         }
 
-        // -------- EVENT LISTENERS FOR NAVIGATION --------
         document.addEventListener('click', function(e) {
             const navLink = e.target.closest('nav a[data-view]');
             if (navLink) {
@@ -2609,7 +2184,6 @@
             }
         });
 
-        // Expose functions globally for inline onclick
         window.navigateTo = navigateTo;
         window.navigateToPlayerDetail = navigateToPlayerDetail;
         window.navigateToGameFromPlayer = navigateToGameFromPlayer;
@@ -2618,7 +2192,6 @@
         window.deleteGame = deleteGame;
         window.deleteThread = deleteThread;
 
-        // -------- INITIALIZE APP (async) --------
         async function initApp() {
             appState.currentView = 'dashboard';
             appState.data = await loadData();
