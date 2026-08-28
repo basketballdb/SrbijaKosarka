@@ -413,6 +413,7 @@
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
+            cursor: pointer;
         }
 
         .player-header {
@@ -443,6 +444,7 @@
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
+            cursor: pointer;
         }
 
         .player-name {
@@ -571,6 +573,7 @@
             cursor: pointer;
             transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
             background: white;
+            min-width: 0;
         }
 
         .game-card:hover {
@@ -594,6 +597,9 @@
             flex: 1;
             text-align: left;
             min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .game-middle {
@@ -604,6 +610,7 @@
             align-items: center;
             gap: 0.5rem;
             justify-content: center;
+            white-space: nowrap;
         }
 
         .game-right {
@@ -614,15 +621,25 @@
             justify-content: flex-end;
             gap: 0.4rem;
             flex-wrap: wrap;
+            min-width: 0;
         }
 
         .game-score {
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             text-align: center;
-            flex: 0 0 80px;
-            min-width: 80px;
+            flex: 0 0 auto;
+            min-width: 70px;
+            white-space: nowrap;
             color: var(--text-darker);
+        }
+
+        .game-score-inline {
+            font-weight: 800;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            color: var(--text-darker);
+            margin-left: 0.5rem;
         }
 
         .game-type {
@@ -651,6 +668,7 @@
             background-color: #ede9fe;
             color: #5b21b6;
             transition: transform var(--transition);
+            white-space: nowrap;
         }
 
         .game-occasion:hover {
@@ -665,6 +683,7 @@
             font-size: 0.7rem;
             font-weight: 600;
             letter-spacing: 0.03em;
+            white-space: nowrap;
         }
 
         .game-photo-gallery {
@@ -681,6 +700,7 @@
             border-radius: var(--radius-sm);
             border: 1px solid var(--border);
             transition: transform var(--transition), box-shadow var(--transition);
+            cursor: pointer;
         }
 
         .game-photo-gallery img:hover {
@@ -752,6 +772,7 @@
             font-size: 1.2rem;
             margin-left: 0.5rem;
             color: var(--text-darker);
+            white-space: nowrap;
         }
 
         .club-name-input {
@@ -789,6 +810,43 @@
             color: white;
         }
 
+        /* Lightbox modal for image enlargement */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            cursor: pointer;
+            padding: 2rem;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .lightbox-overlay img {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            cursor: default;
+            animation: zoomIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -820,12 +878,21 @@
                 flex: 1;
                 text-align: center;
                 justify-content: center;
+                white-space: normal;
+                overflow: visible;
             }
             .game-middle {
                 padding: 0.5rem 0;
             }
             .player-name {
                 font-size: 1.5rem;
+            }
+            .game-score {
+                font-size: 1rem;
+                min-width: 60px;
+            }
+            .game-score-inline {
+                font-size: 1rem;
             }
         }
     </style>
@@ -837,6 +904,7 @@
             <li><a href="#" data-view="dashboard" class="active">Dashboard</a></li>
             <li><a href="#" data-view="players">Players</a></li>
             <li><a href="#" data-view="games">Games</a></li>
+            <li><a href="#" data-view="opponents">Opponents</a></li>
             <li><a href="#" data-view="coaches">Coaches</a></li>
             <li><a href="#" data-view="forum">Forum</a></li>
             <li><a href="#" data-view="addPlayer">Add Player</a></li>
@@ -1105,7 +1173,7 @@
 
         function getPlayerGames(playerId) {
             return appState.data.games.filter(game => {
-                if (game.isTraining) return false; // exclude training games
+                if (game.isTraining) return false;
                 if (game.playerStats) {
                     return game.playerStats.some(stat => stat.playerId === playerId);
                 }
@@ -1127,9 +1195,12 @@
                 'prijateljska': { bg: '#fee2e2', color: '#991b1b' },
                 'eurobasket': { bg: '#fbbf24', color: '#78350f' },
                 'eurobasket qualifier': { bg: '#1a365d', color: '#ffffff' },
-                'fiba world cup': { bg: '#dbeafe', color: '#1e40af' },
-                'fiba world cup qualifier': { bg: '#dbeafe', color: '#1e40af' },
-                'olympic games': { bg: '#d1fae5', color: '#065f46' },
+                'fiba world cup': { bg: '#059669', color: '#ffffff' },
+                'fiba world cup qualifier': { bg: '#0d9488', color: '#ffffff' },
+                'olympic games': { bg: '#dc2626', color: '#ffffff' },
+                'olimpijske igre': { bg: '#dc2626', color: '#ffffff' },
+                'olympic': { bg: '#dc2626', color: '#ffffff' },
+                'olimpijada': { bg: '#dc2626', color: '#ffffff' },
                 'qualifier': { bg: '#e0e7ff', color: '#3730a3' },
                 'default': { bg: '#ede9fe', color: '#5b21b6' }
             };
@@ -1196,6 +1267,17 @@
             await saveData(appState.data);
         }
 
+        // ============ GLOBAL LIGHTBOX FUNCTION ============
+        function showLightbox(src) {
+            if (!src) return;
+            const overlay = document.createElement('div');
+            overlay.className = 'lightbox-overlay';
+            overlay.innerHTML = `<img src="${src}" alt="Enlarged image">`;
+            overlay.addEventListener('click', () => overlay.remove());
+            document.body.appendChild(overlay);
+        }
+        window.showLightbox = showLightbox;
+
         function renderApp() {
             if (!appState.data) return;
             const appDiv = document.getElementById('app');
@@ -1207,6 +1289,7 @@
                 case 'playerDetail': renderPlayerDetail(appDiv); break;
                 case 'games': renderGames(appDiv); break;
                 case 'gameDetail': renderGameDetail(appDiv); break;
+                case 'opponents': renderOpponents(appDiv); break;
                 case 'coaches': renderCoaches(appDiv); break;
                 case 'forum': renderForum(appDiv); break;
                 case 'threadDetail': renderThreadDetail(appDiv); break;
@@ -1236,6 +1319,7 @@
                 <div style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
                     <button class="secondary" onclick="navigateTo('players')">View Players</button>
                     <button class="secondary" onclick="navigateTo('games')">View Games</button>
+                    <button class="secondary" onclick="navigateTo('opponents')">View Opponents</button>
                     <button class="secondary" onclick="navigateTo('coaches')">View Coaches</button>
                     <button class="secondary" onclick="navigateTo('forum')">Go to Forum</button>
                     <button onclick="navigateTo('addGame')">Add New Game</button>
@@ -1350,7 +1434,7 @@
                 const appearances = getPlayerAppearances(player.id);
                 const totalPoints = getPlayerTotalPoints(player.id);
                 const avatarHtml = player.photo
-                    ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}">`
+                    ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}" onclick="event.stopPropagation(); showLightbox('${player.photo}')">`
                     : escapeHtml(player.name.charAt(0).toUpperCase());
                 item.innerHTML = `
                     <div class="item-info">
@@ -1373,11 +1457,11 @@
             if (!player) { container.innerHTML = '<div class="card"><p>Player not found.</p></div>'; return; }
 
             const appearances = getPlayerAppearances(playerId);
-            const playerGames = getPlayerGames(playerId); // already excludes training
+            const playerGames = getPlayerGames(playerId);
             const totalPoints = getPlayerTotalPoints(playerId);
             const motmCount = getPlayerMotmCount(playerId);
             const avatarHtml = player.photo
-                ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}">`
+                ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}" onclick="showLightbox('${player.photo}')">`
                 : escapeHtml(player.name.charAt(0).toUpperCase());
             const backToGameButton = appState.currentReturnGameId
                 ? `<button class="secondary" onclick="navigateTo('gameDetail', '${appState.currentReturnGameId}')">Back to Game</button>`
@@ -1438,7 +1522,6 @@
 
                     if (isMotm) gameDiv.classList.add('motm-highlight');
 
-                    // NOTE: The MOTM badge has been completely removed from the game row.
                     gameDiv.innerHTML = `
                         <div class="game-left">
                             <strong>${escapeHtml(game.homeTeam)}</strong> vs <strong>${escapeHtml(game.awayTeam)}</strong>
@@ -1567,14 +1650,15 @@
             const backToPlayerButton = appState.currentReturnPlayerId
                 ? `<button class="secondary" onclick="navigateToPlayerDetail('${appState.currentReturnPlayerId}', '${game.id}')">Back to Player</button>`
                 : '';
+            const occasionStyle = getOccasionStyle(game.occasion);
 
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
                     <h2 style="margin-bottom:0;">
                         ${escapeHtml(game.homeTeam)} vs ${escapeHtml(game.awayTeam)}
-                        <span style="font-size:1.2em; font-weight:800;">${game.homeScore} - ${game.awayScore}</span>
+                        <span class="game-score-inline">${game.homeScore} - ${game.awayScore}</span>
                         ${game.isTraining ? '<span class="training-badge" style="margin-left:0.8rem; font-size:0.8rem;">🔒 Zatvorena Utakmica</span>' : ''}
                     </h2>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -1583,10 +1667,10 @@
                     </div>
                 </div>
                 <div class="thread-meta">${formatDate(game.date)}${game.venue ? ` · ${escapeHtml(game.venue)}` : ''}</div>
-                ${game.occasion ? `<div style="margin-top:0.5rem;"><span class="game-occasion" style="background-color: ${getOccasionStyle(game.occasion).bg}; color: ${getOccasionStyle(game.occasion).color};">${escapeHtml(game.occasion)}</span></div>` : ''}
+                ${game.occasion ? `<div style="margin-top:0.5rem;"><span class="game-occasion" style="background-color: ${occasionStyle.bg}; color: ${occasionStyle.color};">${escapeHtml(game.occasion)}</span></div>` : ''}
                 ${game.coach ? `<div style="margin-top:0.5rem;"><strong>Head Coach:</strong> ${escapeHtml(game.coach)}</div>` : ''}
                 <div style="margin-top:0.5rem;"><strong>Man of the Match:</strong> ${game.manOfTheMatch ? escapeHtml(getPlayerName(game.manOfTheMatch)) : 'Not selected'}</div>
-                <div class="game-photo-gallery" id="gamePhotoGallery">${(game.photos || []).map(photo => `<img src="${photo}" alt="Game Photo">`).join('')}</div>
+                <div class="game-photo-gallery" id="gamePhotoGallery">${(game.photos || []).map(photo => `<img src="${photo}" alt="Game Photo" onclick="showLightbox('${photo}')">`).join('')}</div>
                 <h3 style="margin-top:1.5rem;">Players & Points</h3>
                 <div id="gamePlayers"></div>
                 <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -1613,7 +1697,7 @@
                         playerItem.className = 'list-item';
                         const isMotm = game.manOfTheMatch === stat.playerId;
                         const avatarHtml = player.photo
-                            ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}">`
+                            ? `<img src="${player.photo}" alt="${escapeHtml(player.name)}" onclick="event.stopPropagation(); showLightbox('${player.photo}')">`
                             : escapeHtml(player.name.charAt(0).toUpperCase());
                         playerItem.innerHTML = `
                             <div class="item-info" style="display:flex; align-items:center;">
@@ -1628,6 +1712,94 @@
                     }
                 });
             }
+        }
+
+        // ============ NEW: OPPONENTS VIEW ============
+        function renderOpponents(container) {
+            const games = appState.data.games.filter(g => !g.isTraining);
+            const opponentMap = new Map();
+
+            const isSrbija = (team) => {
+                const t = team.trim().toLowerCase();
+                return t === 'srbija' || t === 'serbia' || t === 'srb' || t === 'srbija i crna gora' || t === 'serbia and montenegro';
+            };
+
+            games.forEach(game => {
+                let opponent = null;
+                let srbijaIsHome = false;
+                if (isSrbija(game.homeTeam) && !isSrbija(game.awayTeam)) {
+                    opponent = game.awayTeam.trim();
+                    srbijaIsHome = true;
+                } else if (isSrbija(game.awayTeam) && !isSrbija(game.homeTeam)) {
+                    opponent = game.homeTeam.trim();
+                    srbijaIsHome = false;
+                } else {
+                    return; // neither team is Srbija, skip
+                }
+
+                if (!opponent) return;
+                const oppKey = opponent.toLowerCase();
+
+                if (!opponentMap.has(oppKey)) {
+                    opponentMap.set(oppKey, { name: opponent, games: 0, wins: 0, losses: 0, lastGameDate: null });
+                }
+                const record = opponentMap.get(oppKey);
+                record.games++;
+                const gameDate = new Date(game.date);
+                if (!record.lastGameDate || gameDate > record.lastGameDate) {
+                    record.lastGameDate = gameDate;
+                }
+                // Determine result from Srbija's perspective
+                if (game.result === 'W') record.wins++;
+                else if (game.result === 'L') record.losses++;
+                // If result is empty, try to infer from score
+                else if (game.homeScore !== undefined && game.awayScore !== undefined) {
+                    const srbijaScore = srbijaIsHome ? game.homeScore : game.awayScore;
+                    const oppScore = srbijaIsHome ? game.awayScore : game.homeScore;
+                    if (srbijaScore > oppScore) record.wins++;
+                    else if (srbijaScore < oppScore) record.losses++;
+                }
+            });
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <h2>🌍 Opponents</h2>
+                <p>All-time record against every opponent Srbija has played (competitive games only).</p>
+                <div id="opponentsList" style="margin-top:1rem;"></div>
+            `;
+            container.appendChild(card);
+
+            const list = card.querySelector('#opponentsList');
+            if (opponentMap.size === 0) {
+                list.innerHTML = '<p>No opponents found. Add games with Srbija to see records.</p>';
+                return;
+            }
+
+            const sortedOpponents = [...opponentMap.values()].sort((a, b) => {
+                if (a.lastGameDate && b.lastGameDate) return b.lastGameDate - a.lastGameDate;
+                if (a.lastGameDate) return -1;
+                if (b.lastGameDate) return 1;
+                return b.games - a.games;
+            });
+
+            sortedOpponents.forEach(opp => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.style.cursor = 'default';
+                const total = opp.wins + opp.losses;
+                item.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-title">${escapeHtml(opp.name)}</div>
+                        <span class="thread-meta" style="margin-left:0.75rem;">Last: ${opp.lastGameDate ? formatDate(opp.lastGameDate) : 'N/A'}</span>
+                    </div>
+                    <div>
+                        <span class="badge">${opp.games} Games</span>
+                        <span class="badge nt">${opp.wins}W - ${opp.losses}L</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
         }
 
         function renderCoaches(container) {
@@ -1645,22 +1817,38 @@
             });
             const card = document.createElement('div');
             card.className = 'card';
-            card.innerHTML = `<h2>👔 Coaches</h2><p>Head coaches and their records based on competitive games.</p><div id="coachesList" style="margin-top:1rem;"></div>`;
+            card.innerHTML = `<h2>👔 Coaches</h2><p>Head coaches and their records based on competitive games, sorted by most recent game.</p><div id="coachesList" style="margin-top:1rem;"></div>`;
             container.appendChild(card);
             const list = card.querySelector('#coachesList');
             if (coachMap.size === 0) { list.innerHTML = '<p>No coaches found.</p>'; return; }
+
+            // Sort coaches by most recent game date (descending)
             const sortedCoaches = [...coachMap.entries()].sort((a, b) => {
-                const totalA = a[1].wins + a[1].losses;
-                const totalB = b[1].wins + b[1].losses;
-                if (totalB !== totalA) return totalB - totalA;
+                const latestA = a[1].games.reduce((max, g) => {
+                    const d = new Date(g.date);
+                    return d > max ? d : max;
+                }, new Date(0));
+                const latestB = b[1].games.reduce((max, g) => {
+                    const d = new Date(g.date);
+                    return d > max ? d : max;
+                }, new Date(0));
+                if (latestB - latestA !== 0) return latestB - latestA;
                 return a[0].localeCompare(b[0]);
             });
+
             sortedCoaches.forEach(([coachName, record]) => {
                 const total = record.wins + record.losses;
+                const latestGame = record.games.reduce((max, g) => {
+                    const d = new Date(g.date);
+                    return d > max ? d : max;
+                }, new Date(0));
                 const coachItem = document.createElement('div');
                 coachItem.className = 'list-item';
                 coachItem.innerHTML = `
-                    <div class="item-info"><div class="item-title">${escapeHtml(coachName)}</div></div>
+                    <div class="item-info">
+                        <div class="item-title">${escapeHtml(coachName)}</div>
+                        <span class="thread-meta" style="margin-left:0.75rem;">Last: ${formatDate(latestGame)}</span>
+                    </div>
                     <div><span class="badge">${record.wins}W - ${record.losses}L</span><span class="badge nt">${total} Games</span></div>
                 `;
                 coachItem.style.cursor = 'default';
@@ -1760,6 +1948,7 @@
                     <div class="form-group"><label>Previous Clubs</label><div id="clubsContainer"></div><button type="button" class="secondary" id="addClubBtn">+ Add Club</button></div>
                     <div class="form-group"><label for="playerNtDebut">NT Debut Date</label><input type="date" id="playerNtDebut" value="${isEditing ? (editingPlayer.ntDebutDate || '') : ''}"></div>
                     <div class="form-group"><label for="playerPhoto">Photo (optional)</label><input type="file" id="playerPhoto" accept="image/*"></div>
+                    ${isEditing && editingPlayer.photo ? `<div style="margin-top:0.5rem;"><img src="${editingPlayer.photo}" alt="Current photo" style="max-width:100px; max-height:100px; border-radius:50%; border:2px solid var(--serbian-red); cursor:pointer;" onclick="showLightbox('${editingPlayer.photo}')"><br><small>Click image to enlarge</small></div>` : ''}
                     <div class="form-actions">
                         <button type="submit">${isEditing ? 'Update Player' : 'Add Player'}</button>
                         <button type="button" class="secondary" onclick="navigateTo('players')">Cancel</button>
@@ -1918,7 +2107,7 @@
                     <div id="gamePhotosContainer">
                         <div id="gamePhotosGallery" class="game-photo-gallery">${tempPhotos.map((photo, idx) => `
                             <div style="position:relative; display:inline-block;">
-                                <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover;">
+                                <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover; cursor:pointer;" onclick="showLightbox('${photo}')">
                                 <button type="button" class="remove-photo danger" data-index="${idx}" style="position:absolute; top:5px; right:5px; border-radius:50%; width:24px; height:24px; padding:0; line-height:1;">×</button>
                             </div>`).join('')}</div>
                         <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
@@ -2004,7 +2193,7 @@
             function renderPhotos() {
                 gamePhotosGallery.innerHTML = tempPhotos.map((photo, idx) => `
                     <div style="position:relative; display:inline-block;">
-                        <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover;">
+                        <img src="${photo}" alt="Game Photo" style="max-width:150px; max-height:150px; object-fit:cover; cursor:pointer;" onclick="showLightbox('${photo}')">
                         <button type="button" class="remove-photo danger" data-index="${idx}" style="position:absolute; top:5px; right:5px; border-radius:50%; width:24px; height:24px; padding:0; line-height:1;">×</button>
                     </div>`).join('');
                 gamePhotosGallery.querySelectorAll('.remove-photo').forEach(btn => {
@@ -2220,6 +2409,7 @@
         window.deletePlayer = deletePlayer;
         window.deleteGame = deleteGame;
         window.deleteThread = deleteThread;
+        window.showLightbox = showLightbox;
 
         async function initApp() {
             appState.currentView = 'dashboard';
