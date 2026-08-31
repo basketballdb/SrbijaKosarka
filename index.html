@@ -1041,8 +1041,14 @@
             <li><a href="#" data-view="forum">Forum</a></li>
             <li><a href="#" data-view="addPlayer">Add Player</a></li>
             <li><a href="#" data-view="addGame">Add Game</a></li>
+            <!-- New Export / Import buttons -->
+            <li><a href="#" id="exportBtn" title="Export data to JSON file">Export</a></li>
+            <li><a href="#" id="importBtn" title="Import data from JSON file">Import</a></li>
         </ul>
     </nav>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
     <div id="app"></div>
 
@@ -1100,6 +1106,14 @@
         }
 
         function migrateData(data) {
+            if (!data.players) data.players = [];
+            if (!data.games) data.games = [];
+            if (!data.threads) data.threads = [];
+            if (!data.nextPlayerId) data.nextPlayerId = data.players.length + 1;
+            if (!data.nextGameId) data.nextGameId = data.games.length + 1;
+            if (!data.nextThreadId) data.nextThreadId = data.threads.length + 1;
+            if (!data.nextReplyId) data.nextReplyId = 1;
+
             data.players = data.players.map(player => {
                 let clubs = [];
                 if (typeof player.previousClubs === 'string' && player.previousClubs) {
@@ -1115,6 +1129,7 @@
                     ntDebutDate: player.ntDebutDate || ''
                 };
             });
+
             data.games = data.games.map(game => {
                 let photos = [];
                 if (game.photos && Array.isArray(game.photos)) {
@@ -1132,6 +1147,7 @@
                     isTraining: game.isTraining || false
                 };
             });
+
             return data;
         }
 
@@ -1458,6 +1474,49 @@
         }
         window.showClubPlayersModal = showClubPlayersModal;
 
+        // ============ EXPORT / IMPORT FUNCTIONS ============
+        function exportData() {
+            const json = JSON.stringify(appState.data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'basketball-data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    // Basic validation
+                    if (!imported || typeof imported !== 'object' || !Array.isArray(imported.players) || !Array.isArray(imported.games)) {
+                        alert('Invalid data file: missing required fields.');
+                        return;
+                    }
+                    // Migrate imported data to ensure all fields exist
+                    const migrated = migrateData(imported);
+                    // Replace appState.data
+                    appState.data = migrated;
+                    // Save to storage
+                    await saveData(appState.data);
+                    // Recalculate appearances
+                    await recalculateAppearances();
+                    // Navigate to dashboard (or current view) to refresh
+                    navigateTo('dashboard');
+                    alert('Data imported successfully!');
+                } catch (err) {
+                    alert('Error reading file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ============ RENDER FUNCTIONS ============
         function renderApp() {
             if (!appState.data) return;
             const appDiv = document.getElementById('app');
@@ -2604,6 +2663,24 @@
             }
         });
 
+        // Export/Import event listeners
+        document.getElementById('exportBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            exportData();
+        });
+
+        document.getElementById('importBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('importFileInput').click();
+        });
+
+        document.getElementById('importFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) importData(file);
+            // reset input so same file can be re-imported
+            e.target.value = '';
+        });
+
         window.navigateTo = navigateTo;
         window.navigateToPlayerDetail = navigateToPlayerDetail;
         window.navigateToGameFromPlayer = navigateToGameFromPlayer;
@@ -2613,6 +2690,8 @@
         window.deleteThread = deleteThread;
         window.showLightbox = showLightbox;
         window.showClubPlayersModal = showClubPlayersModal;
+        window.exportData = exportData;
+        window.importData = importData;
 
         async function initApp() {
             appState.currentView = 'dashboard';
